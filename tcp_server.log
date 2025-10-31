@@ -1,0 +1,68 @@
+2025-10-27 14:38:36,293 - INFO - Loaded 10 questions from questions.txt
+2025-10-27 14:38:36,294 - INFO - TCP Quiz Server initialized on 0.0.0.0:8888
+2025-10-27 14:38:36,296 - INFO - TCP Quiz Server started on 0.0.0.0:8888
+2025-10-27 14:42:00,160 - INFO - New client connected from ('127.0.0.1', 56847)
+2025-10-27 14:42:12,382 - INFO - Received from ('127.0.0.1', 56847): join:akrem
+2025-10-27 14:42:12,383 - INFO - Client ('127.0.0.1', 56847) joined as 'akrem'
+2025-10-27 14:42:12,383 - ERROR - Error sending message to client: 'NoneType' object has no attribute 'send'
+2025-10-27 14:43:42,871 - INFO - New client connected from ('127.0.0.1', 64321)
+2025-10-27 14:43:56,493 - INFO - Received from ('127.0.0.1', 64321): join:client
+2025-10-27 14:48:39,108 - INFO - Loaded 10 questions from questions.txt
+2025-10-27 14:48:39,109 - INFO - TCP Quiz Server initialized on 0.0.0.0:8888
+2025-10-27 14:48:39,109 - INFO - TCP Quiz Server started on 0.0.0.0:8888
+2025-10-27 14:50:08,626 - INFO - New client connected from ('127.0.0.1', 61721)
+2025-10-27 14:50:21,440 - INFO - Received from ('127.0.0.1', 61721): join:akrem
+2025-10-27 14:50:21,440 - INFO - Client ('127.0.0.1', 61721) joined as 'akrem'
+2025-10-27 14:51:08,070 - INFO - New client connected from ('127.0.0.1', 61724)
+2025-10-27 14:52:57,537 - INFO - Loaded 10 questions from questions.txt
+2025-10-27 14:52:57,538 - INFO - TCP Quiz Server initialized on 0.0.0.0:8888
+2025-10-27 14:52:57,538 - INFO - TCP Quiz Server started on 0.0.0.0:8888
+2025-10-27 15:29:51,703 - INFO - Loaded 10 questions from questions.txt
+2025-10-27 15:29:51,703 - INFO - TCP Quiz Server initialized on 0.0.0.0:8888
+2025-10-27 15:29:51,705 - INFO - TCP Quiz Server started on 0.0.0.0:8888
+2025-10-27 15:33:11,128 - INFO - Loaded 10 questions from questions.txt
+2025-10-27 15:33:11,129 - INFO - TCP Quiz Server initialized on 0.0.0.0:8888
+2025-10-27 15:33:11,130 - INFO - TCP Quiz Server started on 0.0.0.0:8888
+2025-10-27 15:37:49,727 - INFO - Loaded 10 questions from questions.txt
+2025-10-27 15:37:49,728 - INFO - TCP Quiz Server initialized on 0.0.0.0:8888
+2025-10-27 15:37:49,729 - INFO - TCP Quiz Server started on 0.0.0.0:8888
+2025-10-31 16:02:29,843 - INFO - Loaded 10 questions from questions.txt
+2025-10-31 16:02:29,844 - INFO - TCP Quiz Server initialized on 0.0.0.0:8888
+2025-10-31 16:02:29,845 - INFO - TCP Quiz Server started on 0.0.0.0:8888
+2025-10-31 16:08:35,945 - INFO - Loaded 10 questions from questions.txt
+2025-10-31 16:08:35,946 - INFO - TCP Quiz Server initialized on 0.0.0.0:8888
+2025-10-31 16:08:35,947 - INFO - TCP Quiz Server started on 0.0.0.0:8888
+2025-10-31 16:14:49,832 - INFO - Loaded 10 questions from questions.txt
+2025-10-31 16:14:49,833 - INFO - TCP Quiz Server initialized on 0.0.0.0:8888
+2025-10-31 16:14:49,834 - INFO - TCP Quiz Server started on 0.0.0.0:8888
+2025-10-31 16:19:02,234 - INFO - New client connected from ('172.20.10.4', 55657)
+2025-10-31 16:19:48,183 - INFO - Loaded 10 questions from questions.txt
+2025-10-31 16:19:48,184 - INFO - TCP Quiz Server initialized on 0.0.0.0:8888
+2025-10-31 16:19:48,185 - INFO - TCP Quiz Server started on 0.0.0.0:8888
+2025-10-31 16:20:05,122 - INFO - New client connected from ('172.20.10.4', 55662)
+2025-10-31 16:21:34,183 - INFO - Loaded 10 questions from questions.txt
+2025-10-31 16:21:34,183 - INFO - TCP Quiz Server initialized on 0.0.0.0:8888
+2025-10-31 16:21:34,185 - INFO - TCP Quiz Server started on 0.0.0.0:8888
+2025-10-31 16:25:02,823 - INFO - New client connected from ('172.20.10.4', 55738)
+2025-10-31 16:27:57,166 - INFO - Loaded 10 questions from questions.txt
+2025-10-31 16:27:57,167 - INFO - TCP Quiz Server initialized on 0.0.0.0:8888
+2025-10-31 16:27:57,171 - INFO - TCP Quiz Server started on 0.0.0.0:8888
+2025-10-31 16:28:19,338 - INFO - New client connected from ('172.20.10.4', 55780)
+2025-10-31 16:37:50,306 - INFO - Loaded 10 questions from questions.txt
+2025-10-31 16:37:50,307 - INFO - TCP Quiz Server initialized on 0.0.0.0:8888
+2025-10-31 16:37:50,311 - INFO - TCP Quiz Server started on 0.0.0.0:8888
+2025-10-31 16:38:15,799 - INFO - New client connected from ('172.20.10.4', 55829)
+2025-10-31 16:40:45,731 - INFO - New client connected from ('172.20.10.4', 55872)
+2025-10-31 17:46:02,696 - INFO - Loaded 10 questions from /Users/syrine/quiznet-tcp-udp/tcp_quiz/questions.txt
+2025-10-31 17:46:02,696 - INFO - TCP Quiz Server initialized on 0.0.0.0:8888
+2025-10-31 17:46:02,696 - INFO - TCP Quiz Server started on 0.0.0.0:8888
+2025-10-31 17:46:11,709 - INFO - Stopping TCP Quiz Server...
+2025-10-31 17:46:11,709 - INFO - Stopping TCP Quiz Server...
+2025-10-31 17:52:15,870 - INFO - Loaded 10 questions from /Users/syrine/quiznet-tcp-udp/tcp_quiz/questions.txt
+2025-10-31 17:52:15,871 - INFO - TCP Quiz Server initialized on 0.0.0.0:8888
+2025-10-31 17:52:15,871 - INFO - TCP Quiz Server started on 0.0.0.0:8888
+2025-10-31 17:52:39,039 - INFO - Stopping TCP Quiz Server...
+2025-10-31 17:52:39,040 - INFO - Stopping TCP Quiz Server...
+2025-10-31 17:53:50,868 - INFO - Loaded 10 questions from /Users/syrine/quiznet-tcp-udp/tcp_quiz/questions.txt
+2025-10-31 17:53:50,868 - INFO - TCP Quiz Server initialized on 0.0.0.0:8888
+2025-10-31 17:53:50,868 - INFO - TCP Quiz Server started on 0.0.0.0:8888
