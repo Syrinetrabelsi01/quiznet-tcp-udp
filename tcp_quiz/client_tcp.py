@@ -18,10 +18,9 @@ Author: CS411 Lab 4 Implementation
 
 import socket
 import threading
-import json
 import time
 import sys
-from typing import Optional, Dict, Tuple
+from typing import Optional, Tuple
 
 class TCPQuizClient:
     """
@@ -53,17 +52,11 @@ class TCPQuizClient:
         self.current_question = None
         self.question_timer = None
         self.question_start_time = 0
-        
-        # Message handling
         self.message_buffer = b''  # Buffer for partial messages
         
         # Threading
         self.receive_thread = None
         self.stop_event = threading.Event()
-        
-        # Timeouts
-        self.CONNECTION_TIMEOUT = 30.0  # 30 seconds for initial connection
-        self.RECEIVE_TIMEOUT = 5.0      # 5 seconds for receiving data
         
         print("TCP Quiz Client initialized")
     
@@ -77,7 +70,7 @@ class TCPQuizClient:
         try:
             # Create TCP socket
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.socket.settimeout(self.CONNECTION_TIMEOUT)  # 30-second timeout for connection
+            self.socket.settimeout(30.0)  # 30-second timeout for connection
             
             # Connect to server
             self.socket.connect(self.server_address)
@@ -88,21 +81,25 @@ class TCPQuizClient:
             # Test connection with ping
             self.send_message('ping:test')
             
-            # Wait for pong response
+            # Wait for pong response (shorter timeout for test)
             try:
+                self.socket.settimeout(5.0)
                 data = self.socket.recv(1024)
                 response = data.decode('utf-8').strip()
                 if response == 'pong':
                     return True
             except socket.timeout:
-                print("❌ Connection test timeout")
+                print("❌ Connection test timeout: server responded too slowly to ping")
                 return False
+            finally:
+                # Restore longer timeout for normal receiving
+                self.socket.settimeout(None)
             
         except socket.timeout:
-            print("❌ Connection timeout - server may be unavailable")
+            print("❌ Connection timeout - server not reachable (check IP/port and firewall)")
             return False
         except ConnectionRefusedError:
-            print("❌ Connection refused - server may not be running")
+            print("❌ Connection refused - server may not be running or blocked by firewall")
             return False
         except Exception as e:
             print(f"❌ Failed to connect to server: {e}")
@@ -207,18 +204,18 @@ class TCPQuizClient:
                 break
     
     def handle_server_message(self, message: str) -> None:
-        """Handle server messages with improved message parsing."""
+        """
+        Handle incoming messages from the server.
+        
+        Args:
+            message: Message received from server
+        """
         try:
-            # First try parsing as JSON
-            try:
-                data = json.loads(message)
-                if 'type' in data:
-                    self.handle_json_message(data)
-                    return
-            except json.JSONDecodeError:
-                pass
+            # Clear previous question display
+            if self.current_question:
+                print("\n" + "="*60)
             
-            # Fall back to text-based message parsing
+            # Handle different message types
             if message.startswith('error:'):
                 error_msg = message.split(':', 1)[1]
                 print(f"❌ Server error: {error_msg}")
@@ -231,11 +228,6 @@ class TCPQuizClient:
                 correct_answer = message.split(':', 1)[1]
                 print(f"❌ Incorrect. {correct_answer}")
                 
-            elif message.startswith('welcome:'):
-                # Welcome message during registration
-                username = message.split(':', 1)[1]
-                print(f"✅ Welcome, {username}! You're now registered.")
-                
             elif message.startswith('Score update:'):
                 print(f"📊 {message}")
                 
@@ -247,8 +239,8 @@ class TCPQuizClient:
                 print(f"\n{message}")
                 
             elif message.startswith('Question') or 'Time limit:' in message:
-                # Legacy text-based question format
-                self.handle_text_question(message)
+                # This is a quiz question
+                self.display_question(message)
                 
             elif message.startswith("Time's up!"):
                 print(f"⏰ {message}")
@@ -266,87 +258,55 @@ class TCPQuizClient:
                 
         except Exception as e:
             print(f"❌ Error handling message: {e}")
-            
-    def handle_json_message(self, data: Dict) -> None:
-        """Handle JSON-formatted messages from server."""
-        message_type = data.get('type', '')
-        
-        if message_type == 'question':
-            self.display_question(data)
-        elif message_type == 'feedback':
-            print(f"\n{data['message']}")
-        elif message_type == 'timeout':
-            print(f"\n{data['message']}")
-            if self.question_timer and self.question_timer.is_alive():
-                self.stop_event.set()
-        elif message_type == 'leaderboard':
-            print("\n📊 LEADERBOARD")
-            print("="*30)
-            for score in data['scores']:
-                print(f"{score['username']}: {score['score']} points")
-            print("="*30)
-        elif message_type == 'game_start':
-            print(f"\n{data['message']}")
-        elif message_type == 'game_end':
-            print(f"\n{data['message']}")
-            
-    def handle_text_question(self, message: str) -> None:
-        """Handle legacy text-based question format."""
-        lines = message.split('\n')
-        question_data = {
-            'text': lines[0],
-            'options': {},
-            'number': 1,
-            'total': 1
-        }
-        
-        # Parse options
-        for line in lines[1:]:
-            if ':' in line and not line.startswith('Time limit'):
-                option_letter = line[0].lower()
-                option_text = line[3:]  # Remove "x) " prefix
-                question_data['options'][option_letter] = option_text
-            
-        self.display_question(question_data)
     
-    def display_question(self, question_data: dict) -> None:
-        """Display quiz question with countdown timer."""
-        self.current_question = question_data
+    def display_question(self, question_text: str) -> None:
+        """
+        Display a quiz question and start the answer timer.
+        
+        Args:
+            question_text: Formatted question text from server
+        """
+        self.current_question = question_text
         self.question_start_time = time.time()
         
-        # Clear any existing timer
-        self.stop_event.set()
-        if self.question_timer and self.question_timer.is_alive():
-            self.question_timer.join()
-        
         print("\n" + "="*60)
-        print(f"📝 QUESTION {question_data.get('number', '?')} of {question_data.get('total', '?')}")
+        print("📝 QUIZ QUESTION")
         print("="*60)
-        print(question_data['text'])
-        print("\nOptions:")
-        for letter, text in question_data['options'].items():
-            print(f"{letter}) {text}")
+        print(question_text)
         print("="*60)
         print("Enter your answer (a, b, c, or d) or 'quit' to exit:")
         
-        # Start new timer
-        self.stop_event.clear()
+        # Start timer display thread
+        self.start_question_timer()
+    
+    def start_question_timer(self) -> None:
+        """
+        Start a thread to display the question timer.
+        """
+        if self.question_timer and self.question_timer.is_alive():
+            return
+        
         self.question_timer = threading.Thread(target=self.display_timer, daemon=True)
         self.question_timer.start()
     
     def display_timer(self) -> None:
-        """Display countdown timer for current question."""
-        end_time = self.question_start_time + 30  # 30 second timer
-        
-        while time.time() < end_time and not self.stop_event.is_set():
-            remaining = int(end_time - time.time())
-            sys.stdout.write(f"\r⏱️  Time remaining: {remaining:2d}s ")
-            sys.stdout.flush()
-            time.sleep(1)
+        """
+        Display countdown timer for the current question.
+        """
+        start_time = time.time()
+        while self.current_question and not self.stop_event.is_set():
+            elapsed = time.time() - start_time
+            remaining = max(0, 30 - int(elapsed))
             
-        if not self.stop_event.is_set():
-            print("\n⌛ Time's up!")
-            self.current_question = None
+            if remaining <= 0:
+                break
+            
+            # Update timer display (overwrite previous line)
+            print(f"\r⏰ Time remaining: {remaining:2d} seconds", end='', flush=True)
+            time.sleep(1)
+        
+        if self.current_question:
+            print(f"\r⏰ Time's up! Time remaining:  0 seconds")
     
     def send_message(self, message: str) -> None:
         """

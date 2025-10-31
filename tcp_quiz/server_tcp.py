@@ -15,16 +15,15 @@ provides reliable, ordered communication for the quiz game.
 Author: CS411 Lab 4 Implementation
 """
 
-import os
 import socket
 import threading
+import time
 import json
 import logging
-import time
 from datetime import datetime
 from typing import Dict, List, Tuple, Optional
 
-# Configure logging for both file and console (single configuration)
+# Configure logging for the server
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -63,7 +62,6 @@ class TCPQuizServer:
         self.clients: Dict[threading.Thread, Dict] = {}  # thread -> client_info
         self.client_sockets: Dict[threading.Thread, socket.socket] = {}  # thread -> socket
         self.questions: List[Dict] = []
-        self.scores: Dict[str, int] = {}
         self.current_question_index = 0
         self.game_active = False
         self.question_start_time = 0
@@ -80,66 +78,51 @@ class TCPQuizServer:
         logging.info(f"TCP Quiz Server initialized on {host}:{port}")
     
     def load_questions(self) -> None:
-        """Load questions from questions.txt and normalize into internal dict format.
-
-        Expected format per line:
-          id:Question text|a) Option A|b) Option B|c) Option C|d) Option D|<correct_letter>
         """
-        self.questions = []
-        questions_path = os.path.join(os.path.dirname(__file__), "questions.txt")
+        Load quiz questions from questions.txt file.
+        
+        Each question is parsed and stored in a structured format with:
+        - Question text
+        - Multiple choice options (a, b, c, d)
+        - Correct answer
+        """
         try:
-            with open(questions_path, 'r', encoding='utf-8') as f:
-                for raw in f:
-                    line = raw.strip()
-                    if not line:
-                        continue
-
-                    parts = line.split('|')
-                    if len(parts) < 6:
-                        continue
-
-                    # id:question_text
-                    id_part = parts[0]
-                    if ':' in id_part:
-                        q_id, q_text = id_part.split(':', 1)
-                    else:
-                        q_id, q_text = ('', id_part)
-
-                    # parse options into mapping a/b/c/d -> text
+            with open('questions.txt', 'r', encoding='utf-8') as file:
+                lines = file.readlines()
+            
+            self.questions = []
+            for line in lines:
+                line = line.strip()
+                if not line:
+                    continue
+                
+                # Parse question format: id:question|a)option1|b)option2|c)option3|d)option4|correct_answer
+                parts = line.split('|')
+                if len(parts) >= 6:
+                    question_id = parts[0].split(':')[0]
+                    question_text = parts[0].split(':', 1)[1]
+                    
                     options = {}
-                    letters = ['a', 'b', 'c', 'd']
-                    for idx in range(1, 5):
-                        opt_raw = parts[idx].strip()
-                        if not opt_raw:
-                            continue
-                        # try to extract leading letter
-                        opt_letter = opt_raw[0].lower()
-                        opt_text = opt_raw[1:].lstrip('). -')
-                        if opt_letter not in letters:
-                            # fallback to positional mapping
-                            opt_letter = letters[idx - 1]
-                            opt_text = opt_raw
-                        options[opt_letter] = opt_text
-
-                    correct = parts[5].strip().lower()
-                    if correct:
-                        correct = correct[0]
-                    else:
-                        correct = 'a'
-
+                    for i in range(1, 5):
+                        if i < len(parts):
+                            option_text = parts[i]
+                            option_letter = option_text[0]  # a, b, c, or d
+                            options[option_letter] = option_text[3:]  # Remove "a) " prefix
+                    
+                    correct_answer = parts[5] if len(parts) > 5 else 'a'
+                    
                     self.questions.append({
-                        'id': q_id,
-                        'text': q_text,
+                        'id': question_id,
+                        'text': question_text,
                         'options': options,
-                        'correct': correct
+                        'correct': correct_answer
                     })
-
-            logging.info(f"Loaded {len(self.questions)} questions from {questions_path}")
-            print(f"✅ Loaded {len(self.questions)} questions successfully")
-
+            
+            logging.info(f"Loaded {len(self.questions)} questions from questions.txt")
+            
         except FileNotFoundError:
-            logging.error(f"questions.txt not found at {questions_path}")
-            # Provide a safe default question
+            logging.error("questions.txt file not found!")
+            # Create sample questions if file doesn't exist
             self.questions = [
                 {
                     'id': '1',
@@ -152,8 +135,15 @@ class TCPQuizServer:
             logging.error(f"Error loading questions: {e}")
             self.questions = []
     
-    def start(self) -> None:
-        """Start the TCP server and begin accepting client connections."""
+    def start_server(self) -> None:
+        """
+        Start the TCP server and begin accepting client connections.
+        
+        This method:
+        - Creates and binds the TCP socket
+        - Starts the broadcast thread for game management
+        - Begins accepting client connections
+        """
         try:
             # Create TCP socket
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -197,7 +187,13 @@ class TCPQuizServer:
             self.stop_server()
     
     def handle_client(self, client_socket: socket.socket, client_address: Tuple[str, int]) -> None:
-        """Handle communication with a single client."""
+        """
+        Handle communication with a single client.
+        
+        Args:
+            client_socket: Socket connected to the client
+            client_address: Tuple of (IP, port) of the client
+        """
         current_thread = threading.current_thread()
         client_info = None
         
@@ -210,7 +206,7 @@ class TCPQuizServer:
         
         try:
             # Set socket timeout for receiving
-            client_socket.settimeout(5.0)
+            client_socket.settimeout(1.0)
             
             while not self.stop_event.is_set():
                 try:
@@ -264,7 +260,17 @@ class TCPQuizServer:
             self.cleanup_client(current_thread, client_socket, client_address)
     
     def handle_client_join(self, username: str, client_address: Tuple[str, int], client_thread: threading.Thread) -> Optional[Dict]:
-        """Handle client registration/join request and return client info dict if successful."""
+        """
+        Handle client registration/join request.
+        
+        Args:
+            username: Username provided by client
+            client_address: Client's address tuple
+            client_thread: Thread handling this client
+            
+        Returns:
+            Dict: Client info dictionary if successful, None otherwise
+        """
         if not username or len(username.strip()) == 0:
             self.send_message_to_client('error:Invalid username', self.client_sockets[client_thread])
             return None
@@ -300,7 +306,6 @@ class TCPQuizServer:
         
         # Broadcast updated player list
         self.broadcast_player_list()
-        print("DEBUG: handle_client_join() triggered. Starting game...")
         
         # If game is not active and we have clients, start the game
         if not self.game_active and len(self.clients) > 0:
@@ -309,113 +314,78 @@ class TCPQuizServer:
         return client_info
     
     def handle_client_answer(self, answer: str, client_info: Dict, client_thread: threading.Thread) -> None:
-            """Handle a client's answer submission and update scores."""
-            if not self.game_active or not client_info:
-                return
+        """
+        Handle client answer submission.
+        
+        Args:
+            answer: Answer provided by client (format: "a", "b", "c", or "d")
+            client_info: Client information dictionary
+            client_thread: Thread handling this client
+        """
+        if not self.game_active or self.current_question_index >= len(self.questions):
+            self.send_message_to_client('error:No active question', self.client_sockets[client_thread])
+            return
+        
+        # Check if question time has expired
+        current_time = time.time()
+        if current_time - self.question_start_time > self.question_duration:
+            self.send_message_to_client('error:Time expired', self.client_sockets[client_thread])
+            return
+        
+        # Process answer
+        answer = answer.strip().lower()
+        current_question = self.questions[self.current_question_index]
+        
+        client_info['last_seen'] = current_time
+        
+        if answer == current_question['correct']:
+            # Correct answer - award points
+            client_info['score'] += 10
+            logging.info(f"Client {client_info['address']} ({client_info['username']}) answered correctly: {answer}")
+            self.send_message_to_client('correct:10 points', self.client_sockets[client_thread])
             
-            try:
-                if self.current_question_index == 0:
-                    self.send_to_client(client_thread, {
-                        'type': 'feedback',
-                        'message': "⚠️ No active question"
-                    })
-                    return
-                
-                # Check if answer is within time limit
-                elapsed_time = time.time() - self.question_start_time
-                if elapsed_time > self.question_duration:
-                    self.send_to_client(client_thread, {
-                        'type': 'feedback',
-                        'message': "⌛ Too late! Time's up."
-                    })
-                    return
-            
-                # Get current question and check answer
-                current_q = self.questions[self.current_question_index - 1]
-                correct_answer = current_q['correct'].lower()
-                is_correct = answer.lower() == correct_answer
-            
-                # Update score
-                if is_correct:
-                    with self.lock:
-                        client_info['score'] += 10
-                        self.scores[client_info['username']] = client_info['score']
-                
-                # Send feedback
-                feedback = "✅ Correct! +10 points" if is_correct else "❌ Wrong answer!"
-                self.send_to_client(client_thread, {
-                    'type': 'feedback',
-                    'message': feedback
-                })
-            
-                print(f"📝 Answer from {client_info['username']}: {answer} ({feedback})")
-                logging.info(f"Answer from {client_info['username']}: {answer} ({feedback})")
-            
-                # Broadcast updated scores
-                self.broadcast_scores()
-            
-            except Exception as e:
-                logging.error(f"Error handling answer: {str(e)}")
+            # Broadcast score update
+            self.broadcast_score_update(client_info['username'], client_info['score'])
+        else:
+            # Incorrect answer
+            logging.info(f"Client {client_info['address']} ({client_info['username']}) answered incorrectly: {answer}")
+            self.send_message_to_client(f'incorrect:Correct answer was {current_question["correct"]}', self.client_sockets[client_thread])
     
     def start_game(self) -> None:
-        """Start or restart the game with improved handling."""
-        if not self.questions:
-            print("⚠️ No questions loaded. Cannot start game.")
-            logging.warning("No questions loaded. Cannot start game.")
+        """
+        Start a new quiz game session.
+        
+        This method:
+        - Resets game state
+        - Broadcasts game start message
+        - Begins the question sequence
+        """
+        if self.game_active:
             return
-            
-        print("🎮 Starting new quiz game...")
-        logging.info("Starting new quiz game")
         
         self.game_active = True
         self.current_question_index = 0
-        self.scores = {username: 0 for username in self.scores}
         
-        # Broadcast game start
-        self.broadcast_message(json.dumps({
-            'type': 'game_start',
-            'message': "🎮 New game starting!"
-        }))
+        logging.info("Starting new quiz game")
+        self.broadcast_message("Game starting! Get ready for the quiz!")
         
-        # Send first question immediately
+        # Start first question after a short delay
+        time.sleep(2)
         self.next_question()
     
     def next_question(self) -> None:
-        """Send next question to all clients."""
+        """
+        Move to the next question and broadcast it to all clients.
+        
+        This method:
+        - Checks if there are more questions
+        - Broadcasts the current question
+        - Starts the timer
+        - Handles game completion
+        """
         if self.current_question_index >= len(self.questions):
-            print("🏁 Quiz completed!")
-            logging.info("Quiz completed")
-            
-            self.broadcast_message(json.dumps({
-                'type': 'game_end',
-                'message': "🏁 Quiz completed! Final scores:"
-            }))
-            
-            self.broadcast_scores()
-            self.game_active = False
-            
-            # Wait 5 seconds before restarting
-            time.sleep(5)
-            self.start_game()
+            self.end_game()
             return
-            
-        question = self.questions[self.current_question_index]
-        print(f"📤 Broadcasting question {self.current_question_index + 1}: {question['text']}")
-        logging.info(f"Broadcasting question {self.current_question_index + 1}")
-        
-        self.broadcast_message(json.dumps({
-            'type': 'question',
-            'number': self.current_question_index + 1,
-            'total': len(self.questions),
-            'text': question['text'],
-            'options': question['options']
-        }))
-        
-        self.question_start_time = time.time()
-        self.current_question_index += 1
-        
-        # Schedule next question
-        threading.Timer(30.0, self.handle_question_timeout).start()
         
         current_question = self.questions[self.current_question_index]
         self.question_start_time = time.time()
@@ -552,18 +522,6 @@ class TCPQuizServer:
             logging.debug(f"Sent message: {message}")
         except Exception as e:
             logging.error(f"Error sending message to client: {e}")
-
-    def send_to_client(self, client_thread: threading.Thread, message_dict: Dict) -> None:
-        """Send a JSON message (dict) to a client identified by its thread."""
-        try:
-            client_socket = self.client_sockets.get(client_thread)
-            if not client_socket:
-                logging.debug("No socket found for client thread when sending message")
-                return
-            message = json.dumps(message_dict)
-            self.send_message_to_client(message, client_socket)
-        except Exception as e:
-            logging.error(f"Error in send_to_client: {e}")
     
     def cleanup_client(self, client_thread: threading.Thread, client_socket: socket.socket, client_address: Tuple[str, int]) -> None:
         """
@@ -652,7 +610,7 @@ def main():
     server = TCPQuizServer()
     
     try:
-        server.start()
+        server.start_server()
     except KeyboardInterrupt:
         print("\nShutting down server...")
         server.stop_server()
