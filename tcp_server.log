@@ -68,3 +68,35 @@
 2025-10-31 17:53:50,868 - INFO - TCP Quiz Server started on 0.0.0.0:8888
 2025-10-31 18:32:25,299 - INFO - Stopping TCP Quiz Server...
 2025-10-31 18:32:25,306 - INFO - Stopping TCP Quiz Server...
+2025-10-31 22:13:13,641 - ERROR - questions.txt file not found!
+2025-10-31 22:13:13,641 - INFO - TCP Quiz Server initialized on 0.0.0.0:8888
+2025-10-31 22:13:13,641 - INFO - TCP Quiz Server started on 0.0.0.0:8888
+2025-10-31 22:14:16,280 - INFO - Stopping TCP Quiz Server...
+2025-10-31 22:14:16,282 - INFO - Stopping TCP Quiz Server...
+2025-10-31 22:14:30,399 - ERROR - questions.txt file not found!
+2025-10-31 22:14:30,400 - INFO - TCP Quiz Server initialized on 0.0.0.0:8888
+2025-10-31 22:14:30,400 - INFO - TCP Quiz Server started on 0.0.0.0:8888
+2025-10-31 22:14:40,117 - INFO - New client connected from ('192.168.1.44', 50921)
+2025-10-31 22:14:40,118 - INFO - Received from ('192.168.1.44', 50921): ping:test
+2025-10-31 22:14:45,408 - INFO - Received from ('192.168.1.44', 50921): join:syrine
+2025-10-31 22:14:45,408 - INFO - Client ('192.168.1.44', 50921) joined as 'syrine'
+2025-10-31 22:16:34,203 - INFO - Stopping TCP Quiz Server...
+2025-10-31 22:16:40,062 - INFO - Stopping TCP Quiz Server...
+2025-10-31 22:16:51,945 - ERROR - questions.txt file not found!
+2025-10-31 22:16:51,946 - INFO - TCP Quiz Server initialized on 0.0.0.0:8888
+2025-10-31 22:16:51,946 - INFO - TCP Quiz Server started on 0.0.0.0:8888
+2025-10-31 22:17:01,093 - INFO - New client connected from ('192.168.1.44', 50999)
+2025-10-31 22:17:01,096 - INFO - Received from ('192.168.1.44', 50999): ping:test
+2025-10-31 22:17:10,331 - INFO - Received from ('192.168.1.44', 50999): join:syrine
+2025-10-31 22:17:10,332 - INFO - Client ('192.168.1.44', 50999) joined as 'syrine'
+2025-10-31 22:25:02,884 - INFO - Stopping TCP Quiz Server...
+2025-10-31 22:25:04,423 - INFO - Stopping TCP Quiz Server...
+2025-10-31 22:25:12,016 - ERROR - questions.txt file not found!
+2025-10-31 22:25:12,016 - INFO - TCP Quiz Server initialized on 0.0.0.0:8888
+2025-10-31 22:25:12,016 - INFO - TCP Quiz Server started on 0.0.0.0:8888
+2025-10-31 22:25:20,307 - INFO - New client connected from ('192.168.1.44', 51200)
+2025-10-31 22:25:20,310 - INFO - Received from ('192.168.1.44', 51200): ping:test
+2025-10-31 22:25:23,316 - INFO - Received from ('192.168.1.44', 51200): join:syrine
+2025-10-31 22:25:23,316 - INFO - Client ('192.168.1.44', 51200) joined as 'syrine'
+2025-10-31 22:27:38,433 - INFO - Stopping TCP Quiz Server...
+2025-10-31 22:27:39,372 - INFO - Stopping TCP Quiz Server...

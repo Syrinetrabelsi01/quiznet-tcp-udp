@@ -1,0 +1,44 @@
+2025-10-31 22:28:38,482 - INFO - Loaded 10 questions from questions.txt
+2025-10-31 22:28:38,482 - INFO - TCP Quiz Server initialized on 0.0.0.0:8888
+2025-10-31 22:28:38,483 - INFO - TCP Quiz Server started on 0.0.0.0:8888
+2025-10-31 22:28:56,739 - INFO - New client connected from ('192.168.1.44', 51290)
+2025-10-31 22:28:56,742 - INFO - Received from ('192.168.1.44', 51290): ping:test
+2025-10-31 22:29:02,296 - INFO - Received from ('192.168.1.44', 51290): join:syrine
+2025-10-31 22:29:02,296 - INFO - Client ('192.168.1.44', 51290) joined as 'syrine'
+2025-10-31 22:32:57,778 - INFO - Stopping TCP Quiz Server...
+2025-10-31 22:32:58,019 - INFO - Stopping TCP Quiz Server...
+2025-10-31 22:33:09,685 - INFO - Loaded 10 questions from questions.txt
+2025-10-31 22:33:09,685 - INFO - TCP Quiz Server initialized on 0.0.0.0:8888
+2025-10-31 22:33:09,685 - INFO - TCP Quiz Server started on 0.0.0.0:8888
+2025-10-31 22:33:20,805 - INFO - New client connected from ('192.168.1.44', 51387)
+2025-10-31 22:33:20,808 - INFO - Received from ('192.168.1.44', 51387): ping:test
+2025-10-31 22:33:23,016 - INFO - Received from ('192.168.1.44', 51387): join:syrine
+2025-10-31 22:33:23,017 - INFO - Client ('192.168.1.44', 51387) joined as 'syrine'
+2025-10-31 22:39:17,179 - INFO - Stopping TCP Quiz Server...
+2025-10-31 22:39:17,552 - INFO - Stopping TCP Quiz Server...
+2025-10-31 22:39:19,987 - INFO - Loaded 10 questions from questions.txt
+2025-10-31 22:39:19,987 - INFO - TCP Quiz Server initialized on 0.0.0.0:8888
+2025-10-31 22:39:19,987 - INFO - TCP Quiz Server started on 0.0.0.0:8888
+2025-10-31 22:39:27,970 - INFO - New client connected from ('192.168.1.44', 51544)
+2025-10-31 22:39:27,971 - INFO - Received from ('192.168.1.44', 51544): ping:test
+2025-10-31 22:39:30,162 - INFO - Received from ('192.168.1.44', 51544): join:syrine
+2025-10-31 22:39:30,163 - INFO - Client ('192.168.1.44', 51544) joined as 'syrine'
+2025-10-31 22:41:30,738 - INFO - New client connected from ('192.168.1.44', 51619)
+2025-10-31 22:41:44,096 - INFO - Stopping TCP Quiz Server...
+2025-10-31 22:41:44,228 - INFO - Stopping TCP Quiz Server...
+2025-10-31 22:41:47,782 - INFO - Loaded 10 questions from questions.txt
+2025-10-31 22:41:47,782 - INFO - TCP Quiz Server initialized on 0.0.0.0:8888
+2025-10-31 22:41:47,782 - INFO - TCP Quiz Server started on 0.0.0.0:8888
+2025-10-31 22:41:59,097 - INFO - New client connected from ('192.168.1.44', 51636)
+2025-10-31 22:41:59,099 - INFO - Received from ('192.168.1.44', 51636): ping:test
+2025-10-31 22:42:07,412 - INFO - Received from ('192.168.1.44', 51636): join:syriiine
+2025-10-31 22:42:07,414 - INFO - Client ('192.168.1.44', 51636) joined as 'syriiine'
+2025-10-31 22:45:54,043 - INFO - Stopping TCP Quiz Server...
+2025-10-31 22:45:54,402 - INFO - Stopping TCP Quiz Server...
+2025-10-31 22:46:02,702 - INFO - Loaded 10 questions from questions.txt
+2025-10-31 22:46:02,702 - INFO - TCP Quiz Server initialized on 0.0.0.0:8888
+2025-10-31 22:46:02,702 - INFO - TCP Quiz Server started on 0.0.0.0:8888
+2025-10-31 22:46:08,631 - INFO - New client connected from ('192.168.1.44', 51724)
+2025-10-31 22:46:08,633 - INFO - Received from ('192.168.1.44', 51724): ping:test
+2025-10-31 22:46:11,311 - INFO - Received from ('192.168.1.44', 51724): join:syrine
+2025-10-31 22:46:11,311 - INFO - Client ('192.168.1.44', 51724) joined as 'syrine'
