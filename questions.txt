@@ -1,0 +1,10 @@
+1:What is the main difference between TCP and UDP?|a) TCP is connectionless, UDP is connection-oriented|b) TCP is connection-oriented, UDP is connectionless|c) Both are connection-oriented|d) Both are connectionless|b
+2:Which protocol provides reliable data delivery?|a) UDP only|b) TCP only|c) Both TCP and UDP|d) Neither|b
+3:What is the default port number for HTTP?|a) 80|b) 443|c) 21|d) 25|a
+4:Which protocol is used for DNS queries?|a) TCP|b) UDP|c) Both|d) Neither|c
+5:What does TCP use to ensure reliable delivery?|a) Sequence numbers|b) Acknowledgments|c) Checksums|d) All of the above|d
+6:Which protocol is faster for real-time applications?|a) TCP|b) UDP|c) Both are equal|d) Depends on the application|b
+7:What is the three-way handshake used for?|a) TCP connection establishment|b) UDP connection establishment|c) Data transmission|d) Error detection|a
+8:Which protocol is used for email (SMTP)?|a) TCP|b) UDP|c) Both|d) Neither|a
+9:What happens when a UDP packet is lost?|a) It is automatically retransmitted|b) The sender is notified|c) Nothing, it's lost forever|d) The connection is terminated|c
+10:Which protocol is used for video streaming?|a) TCP|b) UDP|c) Both|d) Neither|b

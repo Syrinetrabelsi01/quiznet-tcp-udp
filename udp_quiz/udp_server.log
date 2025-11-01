@@ -159,3 +159,4 @@
 2025-11-01 16:22:03,874 - INFO - Quiz game ended
 2025-11-01 16:23:09,178 - INFO - Removed inactive client ('192.168.100.138', 62956) (sisyyyy) due to timeout
 2025-11-01 16:23:09,180 - INFO - Removed inactive client ('192.168.100.136', 53165) (mahdi) due to timeout
+2025-11-01 16:28:36,947 - INFO - Server interrupted by keyboard; shutting down.
