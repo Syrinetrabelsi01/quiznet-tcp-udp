@@ -51,6 +51,10 @@ class TCPQuizClient:
         self.question_start_time = 0
         self.message_buffer = b''  # Buffer for partial messages
 
+        # Duration for each quiz question in seconds.  This should match the
+        # server's question duration.  The default server duration is 15 seconds.
+        self.question_duration = 15
+
         # Threading
         self.receive_thread = None
         self.stop_event = threading.Event()
@@ -149,34 +153,13 @@ class TCPQuizClient:
                 print(f"❌ Registration error: {e}")
                 return False
 
-    def start_receiving(self):
+    def start_receiving(self) -> None:
         """
-        Starts a background thread to continuously receive messages from the server.
+        Start the background thread for receiving messages from server.
         """
-        import threading
-        self.running = True
-        threading.Thread(target=self.receive_messages, daemon=True).start()
-
-    def receive_messages(self):
-        """
-        Continuously receives messages from the server and handles them.
-        """
-        try:
-            while self.running and self.connected and not self.stop_event.is_set():
-                data = self.socket.recv(4096).decode(errors="ignore")
-                if not data:
-                    break
-
-                # Split incoming data by newlines to handle multiple messages
-                messages = data.strip().split("\n")
-                for message in messages:
-                    if message.strip():
-                        self.handle_server_message(message.strip())
-
-        except Exception as e:
-            print(f"❌ Error while receiving messages: {e}")
-            self.running = False
-            self.disconnect()
+        self.receive_thread = threading.Thread(target=self.receive_loop, daemon=True)
+        self.receive_thread.start()
+        print("📡 Started receiving messages from server...")
 
     def receive_loop(self) -> None:
         """
@@ -229,66 +212,53 @@ class TCPQuizClient:
             message: Message received from server
         """
         try:
-            # Clean message and separate for better parsing
-            message = message.strip()
-
             # Clear previous question display
             if self.current_question:
-                print("\n" + "=" * 60)
+                print("\n" + "="*60)
 
-            # --- Error and feedback messages ---
-            if message.startswith("error:"):
-                error_msg = message.split(":", 1)[1]
+            # Handle different message types
+            if message.startswith('error:'):
+                error_msg = message.split(':', 1)[1]
                 print(f"❌ Server error: {error_msg}")
 
-            elif message.startswith("correct:"):
-                points = message.split(":", 1)[1]
+            elif message.startswith('correct:'):
+                points = message.split(':', 1)[1]
                 print(f"🎉 Correct! {points}")
 
-            elif message.startswith("incorrect:"):
-                correct_answer = message.split(":", 1)[1]
+            elif message.startswith('incorrect:'):
+                correct_answer = message.split(':', 1)[1]
                 print(f"❌ Incorrect. {correct_answer}")
 
-            elif message.startswith("Score update:"):
+            elif message.startswith('Score update:'):
                 print(f"📊 {message}")
 
-            elif message.startswith("📊") or message.startswith("🏆"):
+            elif message.startswith('📊') or message.startswith('🏆'):
+                # Leaderboard or score update
                 print(f"\n{message}")
 
-            elif message.startswith("Connected players:"):
+            elif message.startswith('Connected players:'):
                 print(f"\n{message}")
 
-            # --- QUIZ QUESTION BROADCAST ---
-            elif message.startswith("Question"):
-                # The server sends the entire question as one pipe-delimited line
-                parts = [p.strip() for p in message.split("|")]
-                print("\n📝 QUIZ QUESTION")
-                print("=" * 60)
-                for part in parts:
-                    print(part)
-                print("=" * 60)
-                print("Enter your answer (a, b, c, or d):")
-                self.current_question = True
+            elif message.startswith('Question') or 'Time limit:' in message:
+                # This is a quiz question broadcast as a single-line message
+                self.display_question(message)
 
-            # --- TIME'S UP / ANSWER REVEAL ---
-            elif message.startswith("Time's up!") or "Correct answer:" in message:
+            elif message.startswith("Time's up!"):
                 print(f"⏰ {message}")
                 self.current_question = None
 
-            elif message.startswith("Game starting!"):
+            elif message.startswith('Game starting!'):
                 print(f"🎮 {message}")
 
-            elif message.startswith("Quiz completed!") or message.startswith("Game Over"):
+            elif message.startswith('Quiz completed!'):
                 print(f"🏁 {message}")
-                self.current_question = None
 
-            # --- Catch-all fallback for general messages ---
             else:
+                # Generic message
                 print(f"📢 {message}")
 
         except Exception as e:
             print(f"❌ Error handling message: {e}")
-
 
     def display_question(self, question_text: str) -> None:
         """
@@ -332,7 +302,7 @@ class TCPQuizClient:
         start_time = time.time()
         while self.current_question and not self.stop_event.is_set():
             elapsed = time.time() - start_time
-            remaining = max(0, 30 - int(elapsed))
+            remaining = max(0, self.question_duration - int(elapsed))
 
             if remaining <= 0:
                 break

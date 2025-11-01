@@ -1,415 +1,275 @@
 #!/usr/bin/env python3
 """
-UDP Quiz Client Implementation
+UDP Quiz Client (enhanced version)
 
-This script implements a UDP-based quiz game client that:
-- Connects to the UDP quiz server
-- Registers with a unique username
-- Receives and displays quiz questions
-- Sends answers within time limits
-- Displays real-time feedback and leaderboard updates
-- Handles network errors and disconnections gracefully
+This client connects to the UDP quiz server and participates in quiz games.  It
+is designed to work with the improved server implementation that sends each
+question as a single line using pipe delimiters.  The client replaces these
+delimiters with newlines for display so the question and options are clearly
+separated.  It also displays score updates, leaderboards and other messages
+sent by the server.
 
-The client uses UDP sockets for communication and provides a terminal-based
-interface for user interaction during the quiz game.
+Key features:
 
-Author: CS411 Lab 4 Implementation
+* Handshake (ping/pong) to verify server reachability before proceeding.
+* Username registration with retry on error.
+* Dedicated receiver thread that prints all incoming messages without
+  interfering with the user's ability to type answers.
+* Countdown timer display for each question that matches the server's
+  ``question_duration`` (default 15 seconds).  The timer stops once a
+  question is answered or a new question arrives.
+* Simple command loop supporting answer submission and quitting the game.
+
+To run the client, execute this file and enter the server's host and port
+when prompted.  Once connected and registered, the game will start
+automatically when the server initiates it.
 """
+
+from __future__ import annotations
 
 import socket
 import threading
 import time
-import sys
-from typing import Optional, Tuple
+from typing import Tuple
+
 
 class UDPQuizClient:
-    """
-    UDP-based quiz client that connects to the server and participates in quiz games.
-    
-    This class handles:
-    - Server connection and communication
-    - Message sending and receiving
-    - User interface for quiz interaction
-    - Error handling and reconnection
-    """
-    
-    def __init__(self, server_host: str = 'localhost', server_port: int = 8888):
-        """
-        Initialize the UDP quiz client.
-        
-        Args:
-            server_host: Server host address
-            server_port: Server port number
-        """
-        self.server_host = server_host
-        self.server_port = server_port
-        self.server_address = (server_host, server_port)
-        
-        # Client state
-        self.socket = None
-        self.username = None
-        self.connected = False
-        self.current_question = None
-        self.question_timer = None
-        self.question_start_time = 0
-        
-        # Threading
-        self.receive_thread = None
+    """Client for playing the UDP quiz game."""
+
+    def __init__(self, server_host: str = 'localhost', server_port: int = 8888, question_duration: int = 15):
+        self.server_addr: Tuple[str, int] = (server_host, server_port)
+        self.question_duration = question_duration
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.sock.settimeout(5.0)
+        self.username: str | None = None
+        self.connected: bool = False
         self.stop_event = threading.Event()
-        
-        print("UDP Quiz Client initialized")
-    
-    def connect_to_server(self) -> bool:
-        """
-        Connect to the UDP quiz server.
-        
-        Returns:
-            bool: True if connection successful, False otherwise
-        """
+        # Track the current question text for timer display; None when no question is active.
+        self.current_question: str | None = None
+        self.question_timer_thread: threading.Thread | None = None
+
+    # -------------------------------------------------------------------------
+    # Networking helpers
+    # -------------------------------------------------------------------------
+    def _send(self, message: str) -> None:
+        """Send a UDP message to the server."""
         try:
-            # Create UDP socket
-            self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            self.socket.settimeout(5.0)  # 5-second timeout for operations
-            
-            # Test connection with ping
-            self.send_message('ping:test')
-            
-            # Wait for pong response
-            try:
-                data, addr = self.socket.recvfrom(1024)
-                response = data.decode('utf-8')
-                if response == 'pong':
-                    self.connected = True
-                    print(f"✅ Connected to server at {self.server_host}:{self.server_port}")
-                    return True
-            except socket.timeout:
-                print("❌ Connection timeout - server may be unavailable")
-                return False
-            
+            self.sock.sendto(message.encode('utf-8'), self.server_addr)
         except Exception as e:
-            print(f"❌ Failed to connect to server: {e}")
-            return False
-        
+            print(f"❌ Error sending message: {e}")
+            self.connected = False
+
+    def _receive_once(self, timeout: float = 5.0) -> Tuple[str, Tuple[str, int]] | None:
+        """Receive a single message with a timeout."""
+        self.sock.settimeout(timeout)
+        try:
+            data, addr = self.sock.recvfrom(4096)
+            return data.decode('utf-8').strip(), addr
+        except socket.timeout:
+            return None
+        except Exception as e:
+            print(f"❌ Error receiving message: {e}")
+            self.connected = False
+            return None
+
+    # -------------------------------------------------------------------------
+    # Connection and registration
+    # -------------------------------------------------------------------------
+    def connect(self) -> bool:
+        """Attempt to ping the server to verify connectivity."""
+        # Send ping
+        self._send('ping:test')
+        # Await pong
+        response = self._receive_once(timeout=5.0)
+        if response and response[0] == 'pong':
+            self.connected = True
+            print(f"✅ Connected to server at {self.server_addr[0]}:{self.server_addr[1]}")
+            return True
+        print("❌ Unable to reach server (no pong reply)")
         return False
-    
-    def register_username(self) -> bool:
-        """
-        Register a username with the server.
-        
-        Returns:
-            bool: True if registration successful, False otherwise
-        """
-        while True:
-            username = input("Enter your username: ").strip()
-            
-            if not username:
-                print("❌ Username cannot be empty. Please try again.")
+
+    def register(self) -> bool:
+        """Register a username with the server."""
+        while not self.username:
+            name = input("Enter your username: ").strip()
+            if not name:
+                print("❌ Username cannot be empty. Try again.")
                 continue
-            
-            if len(username) > 20:
-                print("❌ Username too long (max 20 characters). Please try again.")
+            if len(name) > 20:
+                print("❌ Username too long (max 20 characters). Try again.")
                 continue
-            
             # Send join request
-            self.send_message(f'join:{username}')
-            
-            # Wait for response
-            try:
-                data, addr = self.socket.recvfrom(1024)
-                response = data.decode('utf-8')
-                
-                if response.startswith('welcome:'):
-                    self.username = username
-                    print(f"✅ Welcome, {username}! You're now registered.")
+            self._send(f'join:{name}')
+            response = self._receive_once(timeout=5.0)
+            if response:
+                msg, _ = response
+                if msg.startswith('welcome:'):
+                    print(f"✅ Welcome, {name}! You're now registered.")
+                    self.username = name
                     return True
-                elif response.startswith('error:'):
-                    error_msg = response.split(':', 1)[1]
-                    print(f"❌ Registration failed: {error_msg}")
+                elif msg.startswith('error:'):
+                    print(f"❌ Registration failed: {msg.split(':',1)[1]}")
                     return False
-                else:
-                    print(f"❌ Unexpected response: {response}")
-                    return False
-                    
-            except socket.timeout:
-                print("❌ Registration timeout - server may be unavailable")
-                return False
-            except Exception as e:
-                print(f"❌ Registration error: {e}")
-                return False
-    
-    def start_receiving(self) -> None:
-        """
-        Start the background thread for receiving messages from server.
-        """
-        self.receive_thread = threading.Thread(target=self.receive_loop, daemon=True)
-        self.receive_thread.start()
+                # Fall through to continue on unexpected messages
+            print("❌ No response to registration request. Retrying...")
+        return False
+
+    # -------------------------------------------------------------------------
+    # Receiving and processing messages
+    # -------------------------------------------------------------------------
+    def _start_receiver(self) -> None:
+        """Start a background thread to continuously listen for server messages."""
+        threading.Thread(target=self._receive_loop, daemon=True).start()
         print("📡 Started receiving messages from server...")
-    
-    def receive_loop(self) -> None:
-        """
-        Background loop for receiving and processing server messages.
-        """
+
+    def _receive_loop(self) -> None:
+        """Background loop that processes incoming server messages."""
         while not self.stop_event.is_set() and self.connected:
             try:
-                # Set a timeout for receiving
-                self.socket.settimeout(1.0)
-                data, addr = self.socket.recvfrom(1024)
-                message = data.decode('utf-8')
-                
-                # Process the message
-                self.handle_server_message(message)
-                
+                # Short timeout to allow clean shutdown
+                self.sock.settimeout(1.0)
+                data, _ = self.sock.recvfrom(4096)
+                message = data.decode('utf-8').strip()
+                if not message:
+                    continue
+                # Multiple messages may be newline separated; handle each one.
+                for line in message.split('\n'):
+                    if line:
+                        self._handle_server_message(line)
             except socket.timeout:
-                # Timeout is normal, continue listening
                 continue
             except Exception as e:
                 if not self.stop_event.is_set():
                     print(f"❌ Error receiving message: {e}")
                     self.connected = False
                 break
-    
-    def handle_server_message(self, message: str) -> None:
-        """
-        Handle incoming messages from the server.
-        
-        Args:
-            message: Message received from server
-        """
-        try:
-            # Clear previous question display
-            if self.current_question:
-                print("\n" + "="*60)
-            
-            # Handle different message types
-            if message.startswith('error:'):
-                error_msg = message.split(':', 1)[1]
-                print(f"❌ Server error: {error_msg}")
-                
-            elif message.startswith('correct:'):
-                points = message.split(':', 1)[1]
-                print(f"🎉 Correct! {points}")
-                
-            elif message.startswith('incorrect:'):
-                correct_answer = message.split(':', 1)[1]
-                print(f"❌ Incorrect. {correct_answer}")
-                
-            elif message.startswith('Score update:'):
-                print(f"📊 {message}")
-                
-            elif message.startswith('📊') or message.startswith('🏆'):
-                # Leaderboard or score update
-                print(f"\n{message}")
-                
-            elif message.startswith('Connected players:'):
-                print(f"\n{message}")
-                
-            elif message.startswith('Question') or 'Time limit:' in message:
-                # This is a quiz question
-                self.display_question(message)
-                
-            elif message.startswith("Time's up!"):
-                print(f"⏰ {message}")
-                self.current_question = None
-                
-            elif message.startswith('Game starting!'):
-                print(f"🎮 {message}")
-                
-            elif message.startswith('Quiz completed!'):
-                print(f"🏁 {message}")
-                
-            else:
-                # Generic message
-                print(f"📢 {message}")
-                
-        except Exception as e:
-            print(f"❌ Error handling message: {e}")
-    
-    def display_question(self, question_text: str) -> None:
-        """
-        Display a quiz question and start the answer timer.
-        
-        Args:
-            question_text: Formatted question text from server
-        """
-        self.current_question = question_text
-        self.question_start_time = time.time()
-        
-        print("\n" + "="*60)
-        print("📝 QUIZ QUESTION")
-        print("="*60)
-        print(question_text)
-        print("="*60)
-        print("Enter your answer (a, b, c, or d) or 'quit' to exit:")
-        
-        # Start timer display thread
-        self.start_question_timer()
-    
-    def start_question_timer(self) -> None:
-        """
-        Start a thread to display the question timer.
-        """
-        if self.question_timer and self.question_timer.is_alive():
+
+    def _handle_server_message(self, message: str) -> None:
+        """Interpret and act on a single message from the server."""
+        # When a new question arrives, clear current question
+        if message.startswith('Question') or 'Time limit:' in message:
+            # Display question nicely (replace pipes with newlines)
+            self.current_question = message
+            formatted = message.replace(' | ', '\n').strip()
+            print("\n" + "="*60)
+            print("📝 QUIZ QUESTION")
+            print("="*60)
+            print(formatted)
+            print("="*60)
+            print("Enter your answer (a, b, c, or d) or 'quit' to exit:")
+            # Start a timer thread if not already running
+            self._start_timer_thread()
+        elif message.startswith('correct:'):
+            points = message.split(':',1)[1]
+            print(f"🎉 Correct! {points}")
+            # End current question and timer
+            self.current_question = None
+        elif message.startswith('incorrect:'):
+            info = message.split(':',1)[1]
+            print(f"❌ Incorrect. {info}")
+            self.current_question = None
+        elif message.startswith('Score update:'):
+            print(f"📊 {message}")
+        elif message.startswith('📊') or message.startswith('🏁') or message.startswith('🏆'):
+            # Leaderboard or final scoreboard
+            print("\n" + message)
+        elif message.startswith('Connected players:'):
+            print("\n" + message)
+        elif message.startswith("Time's up!") or message.startswith('Correct answer:'):
+            print(f"⏰ {message}")
+            self.current_question = None
+        elif message.startswith('Game starting!'):
+            print(f"🎮 {message}")
+        else:
+            # Print any other informational messages
+            print(f"📢 {message}")
+
+    # -------------------------------------------------------------------------
+    # Timer handling
+    # -------------------------------------------------------------------------
+    def _start_timer_thread(self) -> None:
+        """Spawn a thread to display the countdown timer for the current question."""
+        if self.question_timer_thread and self.question_timer_thread.is_alive():
+            # A timer is already running; let it finish
             return
-        
-        self.question_timer = threading.Thread(target=self.display_timer, daemon=True)
-        self.question_timer.start()
-    
-    def display_timer(self) -> None:
-        """
-        Display countdown timer for the current question.
-        """
-        start_time = time.time()
+        self.question_timer_thread = threading.Thread(target=self._display_timer, daemon=True)
+        self.question_timer_thread.start()
+
+    def _display_timer(self) -> None:
+        """Display a countdown timer matching the question duration."""
+        start = time.time()
         while self.current_question and not self.stop_event.is_set():
-            elapsed = time.time() - start_time
-            remaining = max(0, 30 - int(elapsed))
-            
+            elapsed = time.time() - start
+            remaining = max(0, self.question_duration - int(elapsed))
             if remaining <= 0:
                 break
-            
-            # Update timer display (overwrite previous line)
             print(f"\r⏰ Time remaining: {remaining:2d} seconds", end='', flush=True)
             time.sleep(1)
-        
+        # On timeout, show 0 seconds if still on this question
         if self.current_question:
-            print(f"\r⏰ Time's up! Time remaining:  0 seconds")
-    
-    def send_message(self, message: str) -> None:
-        """
-        Send a message to the server.
-        
-        Args:
-            message: Message to send
-        """
-        try:
-            if self.socket and self.connected:
-                data = message.encode('utf-8')
-                self.socket.sendto(data, self.server_address)
-        except Exception as e:
-            print(f"❌ Error sending message: {e}")
-            self.connected = False
-    
-    def send_answer(self, answer: str) -> None:
-        """
-        Send an answer to the current question.
-        
-        Args:
-            answer: Answer choice (a, b, c, or d)
-        """
-        if not self.current_question:
-            print("❌ No active question to answer")
-            return
-        
-        if answer.lower() not in ['a', 'b', 'c', 'd']:
-            print("❌ Invalid answer. Please enter a, b, c, or d")
-            return
-        
-        self.send_message(f'answer:{answer.lower()}')
-        self.current_question = None  # Clear current question
-        
-        # Stop timer display
-        if self.question_timer and self.question_timer.is_alive():
-            pass  # Timer will stop naturally
-    
+            print(f"\r⏰ Time remaining:  0 seconds")
+
+    # -------------------------------------------------------------------------
+    # Main event loop
+    # -------------------------------------------------------------------------
     def run(self) -> None:
-        """
-        Main client loop for user interaction.
-        """
+        """Run the client: connect, register and handle input."""
         print("🎮 UDP Quiz Game Client")
         print("="*40)
-        
-        # Connect to server
-        if not self.connect_to_server():
-            print("❌ Failed to connect to server. Exiting.")
+        if not self.connect():
             return
-        
-        # Register username
-        if not self.register_username():
-            print("❌ Failed to register username. Exiting.")
+        if not self.register():
             return
-        
-        # Start receiving messages
-        self.start_receiving()
-        
+        # Start background receiver
+        self._start_receiver()
         print("\n🎯 You're now in the quiz game!")
         print("Commands:")
         print("  a, b, c, d - Answer current question")
         print("  quit       - Exit the game")
         print("  help       - Show this help")
         print("\nWaiting for questions...")
-        
-        # Main interaction loop
+        # Main user input loop
         try:
             while self.connected and not self.stop_event.is_set():
-                try:
-                    user_input = input().strip().lower()
-                    
-                    if user_input == 'quit':
-                        print("👋 Goodbye!")
-                        break
-                    elif user_input == 'help':
-                        print("\nCommands:")
-                        print("  a, b, c, d - Answer current question")
-                        print("  quit       - Exit the game")
-                        print("  help       - Show this help")
-                    elif user_input in ['a', 'b', 'c', 'd']:
-                        self.send_answer(user_input)
-                    else:
-                        print("❌ Invalid command. Type 'help' for available commands.")
-                        
-                except KeyboardInterrupt:
-                    print("\n👋 Goodbye!")
+                user_input = input().strip().lower()
+                if user_input == 'quit':
                     break
-                except EOFError:
-                    print("\n👋 Goodbye!")
-                    break
-                except Exception as e:
-                    print(f"❌ Input error: {e}")
-                    
-        finally:
-            self.disconnect()
-    
-    def disconnect(self) -> None:
-        """
-        Disconnect from the server and clean up resources.
-        """
-        print("🔌 Disconnecting from server...")
+                if user_input == 'help':
+                    print("\nCommands:")
+                    print("  a, b, c, d - Answer current question")
+                    print("  quit       - Exit the game")
+                    print("  help       - Show this help")
+                elif user_input in ['a', 'b', 'c', 'd']:
+                    # Send answer
+                    self._send(f'answer:{user_input}')
+                    # The timer will be stopped once a new question arrives or on correct/incorrect message
+                elif user_input:
+                    print("❌ Invalid command. Type 'help' for available commands.")
+        except KeyboardInterrupt:
+            pass
+        # Signal receiver thread to stop
         self.stop_event.set()
         self.connected = False
-        
-        if self.socket:
-            self.socket.close()
-        
-        print("✅ Disconnected.")
+        print("🔌 Disconnecting from server...")
+        try:
+            self.sock.close()
+        finally:
+            print("✅ Disconnected.")
 
-def main():
-    """
-    Main function to start the UDP quiz client.
-    """
+
+def main() -> None:
+    """Prompt for server details and start the UDP client."""
     print("=== UDP Quiz Client ===")
-    
-    # Get server address from user
-    server_host = input("Enter server host (default: localhost): ").strip()
-    if not server_host:
-        server_host = 'localhost'
-    
-    server_port_input = input("Enter server port (default: 8888): ").strip()
+    host = input("Enter server host (default: localhost): ").strip() or 'localhost'
+    port_str = input("Enter server port (default: 8888): ").strip()
     try:
-        server_port = int(server_port_input) if server_port_input else 8888
+        port = int(port_str) if port_str else 8888
     except ValueError:
-        print("❌ Invalid port number. Using default 8888.")
-        server_port = 8888
-    
-    # Create and run client
-    client = UDPQuizClient(server_host, server_port)
-    
-    try:
-        client.run()
-    except KeyboardInterrupt:
-        print("\n👋 Goodbye!")
-        client.disconnect()
-    except Exception as e:
-        print(f"❌ Client error: {e}")
-        client.disconnect()
+        print("❌ Invalid port number; using default 8888.")
+        port = 8888
+    client = UDPQuizClient(host, port)
+    client.run()
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     main()

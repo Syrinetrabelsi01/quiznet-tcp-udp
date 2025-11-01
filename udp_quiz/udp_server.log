@@ -1,0 +1,24 @@
+2025-11-01 15:34:47,394 - INFO - Loaded 10 questions from questions.txt
+2025-11-01 15:34:47,394 - INFO - UDP Quiz Server initialised on 0.0.0.0:8888
+2025-11-01 15:35:32,233 - INFO - Client ('192.168.100.138', 63778) joined as 'lakriiiiim'
+2025-11-01 15:35:32,235 - INFO - Starting new quiz game
+2025-11-01 15:35:34,237 - INFO - Broadcasting question 1
+2025-11-01 15:35:35,157 - INFO - Client ('192.168.100.136', 51990) joined as 'mahdi'
+2025-11-01 15:35:41,859 - INFO - Client ('192.168.100.138', 63778) (lakriiiiim) answered incorrectly: a
+2025-11-01 15:35:51,241 - INFO - Broadcasting question 2
+2025-11-01 15:35:55,801 - INFO - Client ('192.168.100.136', 51990) (mahdi) answered incorrectly: a
+2025-11-01 15:36:05,310 - INFO - Client ('192.168.100.138', 63778) (lakriiiiim) answered incorrectly: a
+2025-11-01 15:36:07,314 - INFO - Broadcasting question 3
+2025-11-01 15:36:09,610 - INFO - Client ('192.168.100.136', 51990) (mahdi) answered incorrectly: b
+2025-11-01 15:36:11,521 - INFO - Client ('192.168.100.138', 63778) (lakriiiiim) answered correctly: a
+2025-11-01 15:36:13,194 - INFO - Client ('192.168.100.136', 51990) (mahdi) answered correctly: a
+2025-11-01 15:36:13,526 - INFO - Broadcasting question 4
+2025-11-01 15:36:14,731 - INFO - Client ('192.168.100.136', 51990) (mahdi) answered incorrectly: b
+2025-11-01 15:36:19,373 - INFO - Client ('192.168.100.138', 63778) (lakriiiiim) answered correctly: c
+2025-11-01 15:36:21,376 - INFO - Broadcasting question 5
+2025-11-01 15:36:22,987 - INFO - Client ('192.168.100.136', 51990) (mahdi) answered incorrectly: a
+2025-11-01 15:36:34,669 - INFO - Client ('192.168.100.138', 63778) (lakriiiiim) answered incorrectly: b
+2025-11-01 15:36:36,672 - INFO - Broadcasting question 6
+2025-11-01 15:36:49,087 - INFO - Client ('192.168.100.138', 63778) (lakriiiiim) answered correctly: b
+2025-11-01 15:36:53,680 - INFO - Broadcasting question 7
+2025-11-01 15:36:54,801 - INFO - Client ('192.168.100.136', 51990) (mahdi) answered correctly: a

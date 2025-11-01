@@ -1,33 +1,39 @@
 #!/usr/bin/env python3
 """
-UDP Quiz Server Implementation
+UDP Quiz Server (enhanced version)
 
-This script implements a UDP-based multiplayer quiz game server that:
-- Manages multiple clients concurrently using UDP sockets
-- Broadcasts quiz questions to all connected clients
-- Handles client answers and maintains a leaderboard
-- Provides real-time score updates and feedback
-- Uses port 8888 for communication
+This server implements a multiplayer quiz game over UDP. It mirrors many of the
+features of the final TCP implementation, including:
 
-The server reads questions from questions.txt and manages game state including:
-- Client registration and management
-- Question broadcasting with 30-second timers
-- Answer validation and scoring
-- Leaderboard maintenance and broadcasting
-- Graceful error handling and logging
+* Single‑line question broadcasts using the pipe (" | ") delimiter to avoid
+  splitting messages across datagram boundaries.
+* A separate game management thread that runs through all questions without
+  blocking the main receive loop.  This ensures the server can continue to
+  receive answers and keep track of players even while questions are being
+  asked.
+* Per‑question timeouts and an early exit if all active clients submit an
+  answer.  Clients who answer correctly are awarded points immediately and
+  leaderboards are updated on the fly.
+* Score, leaderboard and player list broadcasts similar to the TCP version.
+* Graceful handling of client joins, pings, invalid messages and timeouts.
 
-Author: CS411 Lab 4 Implementation
+To run the server simply execute this file.  It listens on all interfaces on
+port 8888 by default.  Questions are loaded from ``questions.txt`` which must
+be located in the same directory as this script.  See the accompanying
+``client_udp.py`` for a compatible client implementation.
 """
+
+from __future__ import annotations
 
 import socket
 import threading
 import time
-import json
 import logging
-from datetime import datetime
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, Tuple, List
 
-# Configure logging for the server
+
+# Configure logging to both a file and stderr.  Adjust the level to DEBUG
+# during development for more verbose output.
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -37,94 +43,69 @@ logging.basicConfig(
     ]
 )
 
+
 class UDPQuizServer:
-    """
-    UDP-based quiz server that manages multiple clients and conducts quiz games.
-    
-    This class handles:
-    - Client registration and management
-    - Question broadcasting with timers
-    - Answer processing and scoring
-    - Leaderboard maintenance
-    - Error handling and logging
-    """
-    
-    def __init__(self, host: str = '0.0.0.0', port: int = 8888):
+    """A UDP‑based quiz server that manages multiple clients and runs quiz games."""
+
+    def __init__(self, host: str = '0.0.0.0', port: int = 8888, question_duration: int = 15):
         """
-        Initialize the UDP quiz server.
-        
-        Args:
-            host: Server host address (0.0.0.0 for all interfaces)
-            port: Server port number (default: 8888)
+        Initialise the UDP quiz server.
+
+        :param host: bind address.  Use '0.0.0.0' to listen on all network interfaces.
+        :param port: UDP port on which to listen.
+        :param question_duration: number of seconds to wait for answers per question.
         """
         self.host = host
         self.port = port
-        self.socket = None
-        
-        # Game state management
-        self.clients: Dict[Tuple[str, int], Dict] = {}  # (ip, port) -> client_info
-        self.questions: List[Dict] = []
-        self.current_question_index = 0
-        self.game_active = False
-        self.question_start_time = 0
-        self.question_duration = 30  # 30 seconds per question
-        
-        # Threading and synchronization
-        self.lock = threading.Lock()
-        self.broadcast_thread = None
+        self.question_duration = question_duration
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.sock.bind((self.host, self.port))
+
+        # Mapping of client address to client info (username, score, last_seen).
+        self.clients: Dict[Tuple[str, int], Dict[str, any]] = {}
+        # List of questions loaded from file.
+        self.questions: List[Dict[str, any]] = []
+        # Game state tracking variables.
+        self.game_active: bool = False
+        self.current_question_index: int = -1
+        self.current_question_start: float = 0.0
+        # Event used to terminate waiting when all active clients have answered.
+        self.question_answered_event = threading.Event()
+        # Track which client addresses have answered the current question.
+        self.current_question_responders: set[Tuple[str, int]] = set()
+
+        # Concurrency primitives.
+        self.lock = threading.RLock()
         self.stop_event = threading.Event()
-        
-        # Load questions from file
-        self.load_questions()
-        
-        logging.info(f"UDP Quiz Server initialized on {host}:{port}")
-    
-    def load_questions(self) -> None:
-        """
-        Load quiz questions from questions.txt file.
-        
-        Each question is parsed and stored in a structured format with:
-        - Question text
-        - Multiple choice options (a, b, c, d)
-        - Correct answer
-        """
+
+        # Load quiz questions at startup.
+        self._load_questions()
+
+        logging.info(f"UDP Quiz Server initialised on {self.host}:{self.port}")
+
+    def _load_questions(self) -> None:
+        """Load quiz questions from ``questions.txt``.  Creates a sample question on failure."""
         try:
             with open('questions.txt', 'r', encoding='utf-8') as file:
-                lines = file.readlines()
-            
-            self.questions = []
+                lines = [line.strip() for line in file.readlines() if line.strip()]
             for line in lines:
-                line = line.strip()
-                if not line:
-                    continue
-                
-                # Parse question format: id:question|a)option1|b)option2|c)option3|d)option4|correct_answer
                 parts = line.split('|')
+                # Expected format: id:question|a)option1|b)option2|c)option3|d)option4|correct
                 if len(parts) >= 6:
-                    question_id = parts[0].split(':')[0]
-                    question_text = parts[0].split(':', 1)[1]
-                    
+                    qid = parts[0].split(':')[0]
+                    qtext = parts[0].split(':', 1)[1]
                     options = {}
-                    for i in range(1, 5):
-                        if i < len(parts):
-                            option_text = parts[i]
-                            option_letter = option_text[0]  # a, b, c, or d
-                            options[option_letter] = option_text[3:]  # Remove "a) " prefix
-                    
-                    correct_answer = parts[5] if len(parts) > 5 else 'a'
-                    
-                    self.questions.append({
-                        'id': question_id,
-                        'text': question_text,
-                        'options': options,
-                        'correct': correct_answer
-                    })
-            
+                    for opt in parts[1:5]:
+                        # Each option starts with e.g. "a) text" or "a)text".  Grab the key and body.
+                        letter = opt[0].lower()
+                        body = opt[2:].lstrip(' )')  # remove "a) " or "a)" prefix and extra space
+                        options[letter] = body
+                    correct = parts[5].strip().lower()
+                    self.questions.append({'id': qid, 'text': qtext, 'options': options, 'correct': correct})
             logging.info(f"Loaded {len(self.questions)} questions from questions.txt")
-            
         except FileNotFoundError:
-            logging.error("questions.txt file not found!")
-            # Create sample questions if file doesn't exist
+            logging.error("questions.txt file not found; using a sample question.")
             self.questions = [
                 {
                     'id': '1',
@@ -136,415 +117,214 @@ class UDPQuizServer:
         except Exception as e:
             logging.error(f"Error loading questions: {e}")
             self.questions = []
-    
-    def start_server(self) -> None:
-        """
-        Start the UDP server and begin accepting client connections.
-        
-        This method:
-        - Creates and binds the UDP socket
-        - Starts the broadcast thread for game management
-        - Begins listening for client messages
-        """
+
+    def start(self) -> None:
+        """Start the server and begin listening for client messages."""
+        # Thread to receive and handle incoming messages.
+        threading.Thread(target=self._receive_loop, daemon=True).start()
+        print(f"UDP Quiz Server running on {self.host}:{self.port}")
+        print("Waiting for clients to connect...")
         try:
-            # Create UDP socket
-            self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            self.socket.bind((self.host, self.port))
-            
-            logging.info(f"UDP Quiz Server started on {self.host}:{self.port}")
-            print(f"UDP Quiz Server running on {self.host}:{self.port}")
-            print("Waiting for clients to connect...")
-            
-            # Start broadcast thread for game management
-            self.broadcast_thread = threading.Thread(target=self.broadcast_loop, daemon=True)
-            self.broadcast_thread.start()
-            
-            # Main server loop - listen for client messages
             while not self.stop_event.is_set():
-                try:
-                    # Receive data from clients
-                    data, client_address = self.socket.recvfrom(1024)
-                    
-                    # Process message in a separate thread to handle multiple clients
-                    client_thread = threading.Thread(
-                        target=self.handle_client_message,
-                        args=(data, client_address),
-                        daemon=True
-                    )
-                    client_thread.start()
-                    
-                except socket.error as e:
-                    if not self.stop_event.is_set():
-                        logging.error(f"Socket error: {e}")
-                except Exception as e:
-                    logging.error(f"Unexpected error in main loop: {e}")
-                    
-        except Exception as e:
-            logging.error(f"Failed to start server: {e}")
-            print(f"Error starting server: {e}")
-        finally:
-            self.stop_server()
-    
-    def handle_client_message(self, data: bytes, client_address: Tuple[str, int]) -> None:
-        """
-        Handle incoming messages from clients.
-        
-        Args:
-            data: Raw message data from client
-            client_address: Tuple of (IP, port) of the client
-        """
-        try:
-            # Decode message from UTF-8
-            message = data.decode('utf-8').strip()
-            logging.info(f"Received from {client_address}: {message}")
-            
-            # Parse message format: command:data
-            if ':' in message:
-                command, data_part = message.split(':', 1)
-                command = command.lower()
-                
-                with self.lock:
-                    if command == 'join':
-                        self.handle_client_join(data_part, client_address)
-                    elif command == 'answer':
-                        self.handle_client_answer(data_part, client_address)
-                    elif command == 'ping':
-                        self.send_message('pong', client_address)
-                    else:
-                        logging.warning(f"Unknown command from {client_address}: {command}")
-            else:
-                logging.warning(f"Invalid message format from {client_address}: {message}")
-                
-        except UnicodeDecodeError:
-            logging.error(f"Invalid UTF-8 data from {client_address}")
-        except Exception as e:
-            logging.error(f"Error handling message from {client_address}: {e}")
-    
-    def handle_client_join(self, username: str, client_address: Tuple[str, int]) -> None:
-        """
-        Handle client registration/join request.
-        
-        Args:
-            username: Username provided by client
-            client_address: Client's address tuple
-        """
-        if not username or len(username.strip()) == 0:
-            self.send_message('error:Invalid username', client_address)
-            return
-        
-        username = username.strip()
-        
-        # Check if username already exists
-        existing_client = None
-        for addr, client_info in self.clients.items():
-            if client_info['username'] == username:
-                existing_client = addr
-                break
-        
-        if existing_client:
-            # Remove old client with same username
-            del self.clients[existing_client]
-            logging.info(f"Removed existing client {existing_client} with username '{username}'")
-        
-        # Register new client
-        self.clients[client_address] = {
-            'username': username,
-            'score': 0,
-            'last_seen': time.time(),
-            'connected': True
-        }
-        
-        logging.info(f"Client {client_address} joined as '{username}'")
-        self.send_message(f'welcome:{username}', client_address)
-        
-        # Broadcast updated player list
-        self.broadcast_player_list()
-        
-        # If game is not active and we have clients, start the game
-        if not self.game_active and len(self.clients) > 0:
-            self.start_game()
-    
-    def handle_client_answer(self, answer: str, client_address: Tuple[str, int]) -> None:
-        """
-        Handle client answer submission.
-        
-        Args:
-            answer: Answer provided by client (format: "a", "b", "c", or "d")
-            client_address: Client's address tuple
-        """
-        if client_address not in self.clients:
-            self.send_message('error:Not registered', client_address)
-            return
-        
-        if not self.game_active or self.current_question_index >= len(self.questions):
-            self.send_message('error:No active question', client_address)
-            return
-        
-        # Check if question time has expired
-        current_time = time.time()
-        if current_time - self.question_start_time > self.question_duration:
-            self.send_message('error:Time expired', client_address)
-            return
-        
-        # Process answer
-        answer = answer.strip().lower()
-        current_question = self.questions[self.current_question_index]
-        
-        client_info = self.clients[client_address]
-        client_info['last_seen'] = current_time
-        
-        if answer == current_question['correct']:
-            # Correct answer - award points
-            client_info['score'] += 10
-            logging.info(f"Client {client_address} ({client_info['username']}) answered correctly: {answer}")
-            self.send_message('correct:10 points', client_address)
-            
-            # Broadcast score update
-            self.broadcast_score_update(client_info['username'], client_info['score'])
-        else:
-            # Incorrect answer
-            logging.info(f"Client {client_address} ({client_info['username']}) answered incorrectly: {answer}")
-            self.send_message(f'incorrect:Correct answer was {current_question["correct"]}', client_address)
-    
-    def start_game(self) -> None:
-        """
-        Start a new quiz game session.
-        
-        This method:
-        - Resets game state
-        - Broadcasts game start message
-        - Begins the question sequence
-        """
-        if self.game_active:
-            return
-        
-        self.game_active = True
-        self.current_question_index = 0
-        
-        logging.info("Starting new quiz game")
-        self.broadcast_message("Game starting! Get ready for the quiz!")
-        
-        # Start first question after a short delay
-        time.sleep(2)
-        self.next_question()
-    
-    def next_question(self) -> None:
-        """
-        Move to the next question and broadcast it to all clients.
-        
-        This method:
-        - Checks if there are more questions
-        - Broadcasts the current question
-        - Starts the timer
-        - Handles game completion
-        """
-        if self.current_question_index >= len(self.questions):
-            self.end_game()
-            return
-        
-        current_question = self.questions[self.current_question_index]
-        self.question_start_time = time.time()
-        
-        # Format question for broadcasting
-        question_text = f"Question {self.current_question_index + 1}: {current_question['text']}"
-        options_text = "\n".join([f"{opt}: {text}" for opt, text in current_question['options'].items()])
-        
-        full_question = f"{question_text}\n{options_text}\nTime limit: {self.question_duration} seconds"
-        
-        logging.info(f"Broadcasting question {self.current_question_index + 1}")
-        self.broadcast_message(full_question)
-        
-        # Wait for question duration
-        time.sleep(self.question_duration)
-        
-        # Reveal correct answer
-        correct_answer = current_question['correct']
-        correct_text = current_question['options'][correct_answer]
-        self.broadcast_message(f"Time's up! Correct answer: {correct_answer}) {correct_text}")
-        
-        # Move to next question
-        self.current_question_index += 1
-        
-        # Brief pause before next question
-        time.sleep(3)
-        self.next_question()
-    
-    def end_game(self) -> None:
-        """
-        End the current quiz game and announce final results.
-        
-        This method:
-        - Stops the game
-        - Calculates final scores
-        - Broadcasts final leaderboard
-        - Resets game state for next round
-        """
-        self.game_active = False
-        
-        logging.info("Quiz game ended")
-        self.broadcast_message("Quiz completed! Final results:")
-        
-        # Sort clients by score (descending)
-        sorted_clients = sorted(
-            self.clients.items(),
-            key=lambda x: x[1]['score'],
-            reverse=True
-        )
-        
-        # Broadcast final leaderboard
-        leaderboard_text = "🏆 FINAL LEADERBOARD 🏆\n"
-        for i, (addr, client_info) in enumerate(sorted_clients, 1):
-            leaderboard_text += f"{i}. {client_info['username']}: {client_info['score']} points\n"
-        
-        self.broadcast_message(leaderboard_text)
-        
-        # Reset scores for next game
-        for client_info in self.clients.values():
-            client_info['score'] = 0
-        
-        # Wait before starting next game
-        time.sleep(5)
-        if len(self.clients) > 0:
-            self.start_game()
-    
-    def broadcast_message(self, message: str) -> None:
-        """
-        Broadcast a message to all connected clients.
-        
-        Args:
-            message: Message to broadcast
-        """
-        with self.lock:
-            for client_address in list(self.clients.keys()):
-                self.send_message(message, client_address)
-    
-    def broadcast_player_list(self) -> None:
-        """
-        Broadcast the current player list to all clients.
-        """
-        if not self.clients:
-            return
-        
-        player_list = "Connected players:\n"
-        for client_info in self.clients.values():
-            player_list += f"- {client_info['username']} ({client_info['score']} points)\n"
-        
-        self.broadcast_message(player_list)
-    
-    def broadcast_score_update(self, username: str, score: int) -> None:
-        """
-        Broadcast a score update to all clients.
-        
-        Args:
-            username: Username whose score was updated
-            score: New score value
-        """
-        self.broadcast_message(f"Score update: {username} now has {score} points!")
-        self.broadcast_leaderboard()
-    
-    def broadcast_leaderboard(self) -> None:
-        """
-        Broadcast the current leaderboard to all clients.
-        """
-        if not self.clients:
-            return
-        
-        # Sort by score (descending)
-        sorted_clients = sorted(
-            self.clients.values(),
-            key=lambda x: x['score'],
-            reverse=True
-        )
-        
-        leaderboard = "📊 CURRENT LEADERBOARD 📊\n"
-        for i, client_info in enumerate(sorted_clients, 1):
-            leaderboard += f"{i}. {client_info['username']}: {client_info['score']} points\n"
-        
-        self.broadcast_message(leaderboard)
-    
-    def send_message(self, message: str, client_address: Tuple[str, int]) -> None:
-        """
-        Send a message to a specific client.
-        
-        Args:
-            message: Message to send
-            client_address: Target client address
-        """
-        try:
-            data = message.encode('utf-8')
-            self.socket.sendto(data, client_address)
-            logging.debug(f"Sent to {client_address}: {message}")
-        except Exception as e:
-            logging.error(f"Error sending message to {client_address}: {e}")
-            # Remove client if sending fails
-            with self.lock:
-                if client_address in self.clients:
-                    del self.clients[client_address]
-    
-    def broadcast_loop(self) -> None:
-        """
-        Background thread that handles periodic tasks like:
-        - Cleaning up disconnected clients
-        - Sending periodic pings
-        - Managing game state
-        """
+                time.sleep(1)
+        except KeyboardInterrupt:
+            logging.info("Server interrupted by keyboard; shutting down.")
+            self.stop_event.set()
+
+    def _receive_loop(self) -> None:
+        """Continuously receive messages and dispatch them to handlers."""
         while not self.stop_event.is_set():
             try:
-                time.sleep(10)  # Check every 10 seconds
-                
-                with self.lock:
-                    current_time = time.time()
-                    disconnected_clients = []
-                    
-                    # Check for disconnected clients (no activity for 60 seconds)
-                    for client_address, client_info in self.clients.items():
-                        if current_time - client_info['last_seen'] > 60:
-                            disconnected_clients.append(client_address)
-                    
-                    # Remove disconnected clients
-                    for client_address in disconnected_clients:
-                        username = self.clients[client_address]['username']
-                        del self.clients[client_address]
-                        logging.info(f"Client {client_address} ({username}) disconnected due to timeout")
-                    
-                    # Broadcast updated player list if clients were removed
-                    if disconnected_clients:
-                        self.broadcast_player_list()
-                
+                data, addr = self.sock.recvfrom(2048)
+                message = data.decode('utf-8').strip()
+                if not message:
+                    continue
+                # Split at first colon to get command and remainder.
+                if ':' in message:
+                    command, payload = message.split(':', 1)
+                else:
+                    command, payload = message, ''
+                command = command.lower()
+                if command == 'ping':
+                    self._send('pong', addr)
+                elif command == 'join':
+                    self._handle_join(payload.strip(), addr)
+                elif command == 'answer':
+                    self._handle_answer(payload.strip(), addr)
+                else:
+                    logging.warning(f"Unknown command '{command}' from {addr}")
             except Exception as e:
-                logging.error(f"Error in broadcast loop: {e}")
-    
-    def stop_server(self) -> None:
-        """
-        Stop the server and clean up resources.
-        """
-        logging.info("Stopping UDP Quiz Server...")
-        self.stop_event.set()
-        
-        if self.socket:
-            self.socket.close()
-        
-        print("UDP Quiz Server stopped.")
+                logging.error(f"Error receiving message: {e}")
 
-def main():
-    """
-    Main function to start the UDP quiz server.
-    """
+    # -------------------------------------------------------------------------
+    # Client join/answer handlers
+    # -------------------------------------------------------------------------
+    def _handle_join(self, username: str, addr: Tuple[str, int]) -> None:
+        """Register a new client and start a game if none is active."""
+        if not username:
+            self._send('error:Invalid username', addr)
+            return
+        username = username.strip()
+        with self.lock:
+            # Remove existing record for this username (if connected from elsewhere).
+            to_remove = [a for a, info in self.clients.items() if info['username'] == username]
+            for rem in to_remove:
+                del self.clients[rem]
+                logging.info(f"Removed existing client {rem} with username '{username}'")
+            # Add new client.
+            self.clients[addr] = {'username': username, 'score': 0, 'last_seen': time.time(), 'connected': True}
+        logging.info(f"Client {addr} joined as '{username}'")
+        self._send(f'welcome:{username}', addr)
+        self._broadcast_player_list()
+        # Start the game if not already running.
+        if not self.game_active and len(self.clients) > 0:
+            threading.Thread(target=self._start_game, daemon=True).start()
+
+    def _handle_answer(self, answer: str, addr: Tuple[str, int]) -> None:
+        """Handle an answer submission from a client."""
+        with self.lock:
+            # Verify client registration
+            if addr not in self.clients:
+                self._send('error:Not registered', addr)
+                return
+            # Verify game state
+            if not self.game_active or self.current_question_index < 0 or self.current_question_index >= len(self.questions):
+                self._send('error:No active question', addr)
+                return
+            # Check timeout
+            if time.time() - self.current_question_start > self.question_duration:
+                self._send('error:Time expired', addr)
+                return
+            # Mark this client as having responded to current question.
+            self.current_question_responders.add(addr)
+            # Fetch current question and check correctness
+            question = self.questions[self.current_question_index]
+            answer = answer.lower().strip()
+            client_info = self.clients[addr]
+            client_info['last_seen'] = time.time()
+            if answer == question['correct']:
+                client_info['score'] += 10
+                logging.info(f"Client {addr} ({client_info['username']}) answered correctly: {answer}")
+                self._send('correct:10 points', addr)
+                self._broadcast_score_update(client_info['username'], client_info['score'])
+            else:
+                logging.info(f"Client {addr} ({client_info['username']}) answered incorrectly: {answer}")
+                correct_letter = question['correct']
+                correct_text = question['options'][correct_letter]
+                self._send(f'incorrect:Correct answer was {correct_letter}) {correct_text}', addr)
+            # If all active clients have responded, signal event to skip remaining wait.
+            active_clients = [a for a, info in self.clients.items() if info['connected']]
+            if len(self.current_question_responders) >= len(active_clients):
+                self.question_answered_event.set()
+
+    # -------------------------------------------------------------------------
+    # Game management
+    # -------------------------------------------------------------------------
+    def _start_game(self) -> None:
+        """Begin a new quiz session in a separate thread."""
+        # Prevent multiple games from running concurrently.
+        with self.lock:
+            if self.game_active:
+                return
+            self.game_active = True
+        logging.info("Starting new quiz game")
+        self._broadcast("Game starting! Get ready for the quiz!")
+        time.sleep(2)
+        # Iterate through each question
+        for idx in range(len(self.questions)):
+            # Check stop condition
+            if self.stop_event.is_set():
+                break
+            self._ask_question(idx)
+        self._end_game()
+
+    def _ask_question(self, index: int) -> None:
+        """Broadcast a single question and handle timing/answers."""
+        with self.lock:
+            self.current_question_index = index
+            self.current_question_start = time.time()
+            self.current_question_responders = set()
+            self.question_answered_event.clear()
+            question = self.questions[index]
+        # Format as single‑line pipe‑delimited question
+        qtext = f"Question {index + 1}: {question['text']}"
+        options_text = " | ".join([f"{opt}) {txt}" for opt, txt in question['options'].items()])
+        full_question = f"{qtext} | {options_text} | Time limit: {self.question_duration} seconds"
+        logging.info(f"Broadcasting question {index + 1}")
+        self._broadcast(full_question)
+        # Wait either for all answers or for timeout
+        answered = self.question_answered_event.wait(self.question_duration)
+        # Reveal correct answer
+        correct_letter = question['correct']
+        correct_text = question['options'][correct_letter]
+        prefix = "" if answered else "Time's up! "
+        self._broadcast(f"{prefix}Correct answer: {correct_letter}) {correct_text}")
+        # Short pause before next question
+        time.sleep(2)
+
+    def _end_game(self) -> None:
+        """Conclude the current quiz and broadcast final results."""
+        with self.lock:
+            if not self.game_active:
+                return
+            self.game_active = False
+            scores = sorted(self.clients.values(), key=lambda x: x['score'], reverse=True)
+        logging.info("Quiz game ended")
+        # Build final leaderboard string
+        leaderboard = "🏁 Quiz completed!\n🏆 FINAL LEADERBOARD 🏆\n"
+        for idx, info in enumerate(scores, start=1):
+            leaderboard += f"{idx}. {info['username']}: {info['score']} points\n"
+        self._broadcast(leaderboard.strip())
+
+    # -------------------------------------------------------------------------
+    # Broadcast and send helpers
+    # -------------------------------------------------------------------------
+    def _broadcast(self, message: str) -> None:
+        """Send a message to all connected clients."""
+        with self.lock:
+            for addr in list(self.clients.keys()):
+                self._send(message, addr)
+
+    def _broadcast_player_list(self) -> None:
+        """Broadcast the list of connected players and their scores."""
+        with self.lock:
+            if not self.clients:
+                return
+            msg = "Connected players:\n"
+            for info in self.clients.values():
+                msg += f"- {info['username']} ({info['score']} points)\n"
+        self._broadcast(msg.strip())
+
+    def _broadcast_score_update(self, username: str, score: int) -> None:
+        """Broadcast a score update and the current leaderboard."""
+        self._broadcast(f"Score update: {username} now has {score} points!")
+        self._broadcast_leaderboard()
+
+    def _broadcast_leaderboard(self) -> None:
+        """Broadcast the current leaderboard sorted by score."""
+        with self.lock:
+            if not self.clients:
+                return
+            sorted_clients = sorted(self.clients.values(), key=lambda x: x['score'], reverse=True)
+            board = "📊 CURRENT LEADERBOARD 📊\n"
+            for idx, info in enumerate(sorted_clients, start=1):
+                board += f"{idx}. {info['username']}: {info['score']} points\n"
+        self._broadcast(board.strip())
+
+    def _send(self, message: str, addr: Tuple[str, int]) -> None:
+        """Send a single UDP message to a client."""
+        try:
+            self.sock.sendto((message + '\n').encode('utf-8'), addr)
+        except Exception as e:
+            logging.error(f"Error sending to {addr}: {e}")
+
+
+def main() -> None:
+    """Entry point for launching the UDP quiz server."""
     print("=== UDP Quiz Server ===")
-    print("Starting server on port 8888...")
-    
-    # Create and start server
     server = UDPQuizServer()
-    
-    try:
-        server.start_server()
-    except KeyboardInterrupt:
-        print("\nShutting down server...")
-        server.stop_server()
-    except Exception as e:
-        print(f"Server error: {e}")
-        server.stop_server()
+    server.start()
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     main()

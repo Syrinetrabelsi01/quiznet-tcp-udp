@@ -59,16 +59,43 @@ class TCPQuizServer:
         self.socket = None
 
         # Game state management
-        self.clients: Dict[threading.Thread, Dict] = {}  # thread -> client_info
-        self.client_sockets: Dict[threading.Thread, socket.socket] = {}  # thread -> socket
+        # Mapping of client threads to their information.  Each client_info
+        # dictionary stores the username, score, question index, whether the
+        # client has finished the quiz, and the start time of the current
+        # question.  We also keep a reference to the client's timer thread
+        # (used to cancel timeouts when the client answers early).
+        self.clients: Dict[threading.Thread, Dict] = {}
+        # Mapping of client threads to their sockets
+        self.client_sockets: Dict[threading.Thread, socket.socket] = {}
+        # List of all questions loaded from questions.txt
         self.questions: List[Dict] = []
+        # Duration in seconds for each question.  Clients must answer within
+        # this time; otherwise, they will be notified that time is up and the
+        # correct answer will be revealed.  After that, the next question will
+        # be sent to the client individually.  Adjust this value to speed up
+        # or slow down the quiz.
+        self.question_duration = 15
+
+        # Flag indicating whether the quiz has ended.  Once set to True in
+        # end_game(), new clients will not receive questions.  The game does
+        # not automatically restart.
+        self.game_over: bool = False
+
+        # The following fields related to global per-question tracking from the
+        # previous implementation are no longer needed.  They are retained
+        # for backward compatibility but are unused in the per-client logic.
         self.current_question_index = 0
         self.game_active = False
         self.question_start_time = 0
-        self.question_duration = 30  # 30 seconds per question
+        self.question_answered_event = threading.Event()
+        self.current_question_responders: set = set()
 
         # Threading and synchronization
-        self.lock = threading.Lock()
+        # Use a reentrant lock (RLock) to allow the same thread to re-acquire
+        # the lock when methods like handle_client_join invoke other methods
+        # that also use this lock (e.g., broadcast_message).  Without RLock,
+        # acquiring the lock twice in the same thread would cause a deadlock.
+        self.lock = threading.RLock()
         self.broadcast_thread = None
         self.stop_event = threading.Event()
 
@@ -291,13 +318,22 @@ class TCPQuizServer:
             self.cleanup_client(existing_thread, self.client_sockets[existing_thread], client_address)
             logging.info(f"Removed existing client with username '{username}'")
 
-        # Register new client
+        # Register new client.  Initialize per-client state:
+        # - 'question_index' tracks which question the client is currently on.
+        # - 'finished' indicates whether the client has completed the quiz.
+        # - 'timer_thread' will hold a reference to the per-question timer
+        #   thread so that it can be cancelled or ignored when the client
+        #   answers early.
         client_info = {
             'username': username,
             'score': 0,
             'last_seen': time.time(),
             'connected': True,
-            'address': client_address
+            'address': client_address,
+            'question_index': 0,
+            'finished': False,
+            'timer_thread': None,
+            'question_start_time': 0.0
         }
 
         self.clients[client_thread] = client_info
@@ -309,11 +345,15 @@ class TCPQuizServer:
         # Broadcast updated player list
         self.broadcast_player_list()
 
-        # If game is not active and we have clients, start the game
-        # Force start game once first player joins
-        if not self.game_active:
-            threading.Thread(target=self.start_game, daemon=True).start()
+        # If the game is over (all clients finished previously), do not start
+        # new quizzes for new clients.  They will join as spectators.
+        if self.game_over:
+            self.send_message_to_client("Game over! Please wait for the next session.", self.client_sockets[client_thread])
+            return client_info
 
+        # Start the first question for this client immediately.  Each client
+        # progresses through questions independently of others.
+        self.send_question_to_client(client_thread)
 
         return client_info
 
@@ -326,35 +366,62 @@ class TCPQuizServer:
             client_info: Client information dictionary
             client_thread: Thread handling this client
         """
-        # If no game is active, start it in a background thread
-        if not self.game_active:
-            threading.Thread(target=self.start_game, daemon=True).start()
-
-
-        # Check if question time has expired
-        current_time = time.time()
-        if current_time - self.question_start_time > self.question_duration:
-            self.send_message_to_client('error:Time expired', self.client_sockets[client_thread])
+        # In the per-client model, each client has its own question index and
+        # finishes independently.  Ignore answers if the client has finished.
+        if client_info.get('finished', False):
+            self.send_message_to_client('error:Quiz completed', self.client_sockets[client_thread])
             return
 
-        # Process answer
-        answer = answer.strip().lower()
-        current_question = self.questions[self.current_question_index]
+        idx = client_info.get('question_index', 0)
+        # Validate question index
+        if idx >= len(self.questions):
+            # Mark finished and ignore
+            client_info['finished'] = True
+            if all(ci.get('finished', False) for ci in self.clients.values()):
+                self.end_game()
+            return
 
+        current_question = self.questions[idx]
+        current_time = time.time()
         client_info['last_seen'] = current_time
 
-        if answer == current_question['correct']:
+        # Normalize answer
+        answer = answer.strip().lower()
+        correct = current_question['correct']
+
+        # Cancel existing timer thread by incrementing the question index after handling
+        # (The timer thread will check the question index and exit automatically.)
+
+        if answer == correct:
             # Correct answer - award points
             client_info['score'] += 10
             logging.info(f"Client {client_info['address']} ({client_info['username']}) answered correctly: {answer}")
             self.send_message_to_client('correct:10 points', self.client_sockets[client_thread])
-
-            # Broadcast score update
-            self.broadcast_score_update(client_info['username'], client_info['score'])
         else:
             # Incorrect answer
             logging.info(f"Client {client_info['address']} ({client_info['username']}) answered incorrectly: {answer}")
-            self.send_message_to_client(f'incorrect:Correct answer was {current_question["correct"]}', self.client_sockets[client_thread])
+            correct_text = current_question['options'][correct]
+            self.send_message_to_client(
+                f'incorrect:Correct answer was {correct}) {correct_text}',
+                self.client_sockets[client_thread]
+            )
+
+        # Advance to next question for this client
+        client_info['question_index'] = idx + 1
+
+        # If the client has completed all questions, mark finished
+        if client_info['question_index'] >= len(self.questions):
+            client_info['finished'] = True
+            # Check if all clients have finished; if so, end the game and show leaderboard
+            if all(ci.get('finished', False) for ci in self.clients.values()):
+                self.end_game()
+            else:
+                # Notify this client that they have finished
+                self.send_message_to_client('Quiz completed! Waiting for other players to finish...',
+                                            self.client_sockets[client_thread])
+        else:
+            # Send next question to this client
+            self.send_question_to_client(client_thread)
 
     def start_game(self) -> None:
         """
@@ -378,32 +445,62 @@ class TCPQuizServer:
         time.sleep(2)
         self.next_question()
 
-    def next_question(self):
+    def next_question(self) -> None:
+        """
+        Move to the next question and broadcast it to all clients.
+
+        This method:
+        - Checks if there are more questions
+        - Broadcasts the current question
+        - Starts the timer
+        - Handles game completion
+        """
         if self.current_question_index >= len(self.questions):
             self.end_game()
             return
 
+        # Reset responders for the new question
+        self.current_question_responders = set()
+
         current_question = self.questions[self.current_question_index]
         self.question_start_time = time.time()
 
+        # Format question for broadcasting as a single-line string
+        # Join options with a pipe delimiter to avoid embedding newlines in the message.
         question_text = f"Question {self.current_question_index + 1}: {current_question['text']}"
-        options_text = " | ".join([f"{opt}) {text}" for opt, text in current_question['options'].items()])
-        full_question = f"{question_text} | {options_text} | Time limit: {self.question_duration} seconds"
+        options_list = [f"{opt}) {text}" for opt, text in current_question['options'].items()]
+        options_text = " | ".join(options_list)
 
-        logging.info(f"Broadcasting question {self.current_question_index + 1}: {full_question}")
+        full_question = (
+            f"{question_text} | {options_text} | Time limit: {self.question_duration} seconds"
+        )
+
+        logging.info(f"Broadcasting question {self.current_question_index + 1}")
         self.broadcast_message(full_question)
 
-        time.sleep(self.question_duration)
+        # Clear the event and wait either for a client answer (event set) or for the
+        # question timeout.  If a client answers, the event will be set in
+        # handle_client_answer(), causing the wait to return early.  Otherwise,
+        # wait() will time out after question_duration seconds.
+        self.question_answered_event.clear()
+        answered = self.question_answered_event.wait(self.question_duration)
 
+        # Reveal correct answer after waiting for the event or timeout
         correct_answer = current_question['correct']
         correct_text = current_question['options'][correct_answer]
-        self.broadcast_message(f"Time's up! Correct answer: {correct_answer}) {correct_text}")
+        # If the question was answered before the timeout, avoid the "Time's up" prefix.
+        if answered:
+            prefix = ""
+        else:
+            prefix = "Time's up! "
+        self.broadcast_message(f"{prefix}Correct answer: {correct_answer}) {correct_text}")
 
+        # Move to next question
         self.current_question_index += 1
+
+        # Brief pause before next question
         time.sleep(3)
         self.next_question()
-
-
 
     def end_game(self) -> None:
         """
@@ -415,7 +512,9 @@ class TCPQuizServer:
         - Broadcasts final leaderboard
         - Resets game state for next round
         """
+        # Mark the game as over so that new clients do not start a new quiz
         self.game_active = False
+        self.game_over = True
 
         logging.info("Quiz game ended")
         self.broadcast_message("Quiz completed! Final results:")
@@ -438,10 +537,9 @@ class TCPQuizServer:
         for client_info in self.clients.values():
             client_info['score'] = 0
 
-        # Wait before starting next game
-        time.sleep(5)
-        if len(self.clients) > 0:
-            self.start_game()
+        # Do not automatically restart the game.  The quiz ends after the
+        # final leaderboard is broadcast.  To start another game, the
+        # server must be restarted or a new game must be initiated manually.
 
     def broadcast_message(self, message: str) -> None:
         """
@@ -454,6 +552,115 @@ class TCPQuizServer:
             for client_thread, client_socket in self.client_sockets.items():
                 if client_thread in self.clients and self.clients[client_thread]['connected']:
                     self.send_message_to_client(message, client_socket)
+
+    def send_question_to_client(self, client_thread: threading.Thread) -> None:
+        """
+        Send the current question to a specific client based on their
+        individual question index.  This method also starts a timer thread
+        that will handle the timeout for this client's answer.  If the client
+        finishes all questions, they will be marked as finished and the server
+        will check whether all clients are done.
+
+        Args:
+            client_thread: The thread identifying the client to send the question to
+        """
+        with self.lock:
+            # Retrieve client info; if client has disconnected, do nothing
+            client_info = self.clients.get(client_thread)
+            if not client_info or client_info.get('finished', False):
+                return
+
+            idx = client_info.get('question_index', 0)
+            if idx >= len(self.questions):
+                # Client has completed all questions
+                client_info['finished'] = True
+                # If all clients are done, end the game
+                if all(ci.get('finished', False) for ci in self.clients.values()):
+                    self.end_game()
+                else:
+                    # Inform this client that the quiz is completed
+                    self.send_message_to_client('Quiz completed! Waiting for other players to finish...',
+                                                self.client_sockets[client_thread])
+                return
+
+            # Prepare question
+            question = self.questions[idx]
+            question_text = f"Question {idx + 1}: {question['text']}"
+            options_list = [f"{opt}) {text}" for opt, text in question['options'].items()]
+            options_text = " | ".join(options_list)
+            full_question = (
+                f"{question_text} | {options_text} | Time limit: {self.question_duration} seconds"
+            )
+
+            # Record start time
+            client_info['question_start_time'] = time.time()
+
+            # Cancel any existing timer thread (it will exit on its own when index changes)
+            # and start a new timer thread for this question.
+            timer_thread = threading.Thread(
+                target=self.question_timeout_handler,
+                args=(client_thread, idx),
+                daemon=True
+            )
+            client_info['timer_thread'] = timer_thread
+
+            # Send question to client
+            self.send_message_to_client(full_question, self.client_sockets[client_thread])
+
+            # Start timer thread
+            timer_thread.start()
+
+    def question_timeout_handler(self, client_thread: threading.Thread, question_index: int) -> None:
+        """
+        Handle the case where a client does not answer a question within the
+        allotted time.  After waiting for question_duration seconds, this
+        function checks whether the client has already advanced to the next
+        question.  If not, it sends a time's up message with the correct
+        answer, advances the client's question index, and either sends the
+        next question or marks the client as finished.
+
+        Args:
+            client_thread: The thread identifying the client
+            question_index: The index of the question that was sent
+        """
+        # Wait for the duration of the question
+        time.sleep(self.question_duration)
+
+        with self.lock:
+            client_info = self.clients.get(client_thread)
+            if not client_info:
+                return
+
+            # If the client is finished or has already moved on to the next
+            # question, do nothing.  The timer thread becomes a no-op.
+            if client_info.get('finished', False) or client_info.get('question_index', 0) != question_index:
+                return
+
+            # Client did not answer in time.  Reveal correct answer and move on.
+            question = self.questions[question_index]
+            correct = question['correct']
+            correct_text = question['options'][correct]
+            self.send_message_to_client(
+                f"Time's up! Correct answer: {correct}) {correct_text}",
+                self.client_sockets[client_thread]
+            )
+
+            # Advance question index
+            client_info['question_index'] = question_index + 1
+
+            # If client has finished all questions, mark finished
+            if client_info['question_index'] >= len(self.questions):
+                client_info['finished'] = True
+                # Check if all clients have finished
+                if all(ci.get('finished', False) for ci in self.clients.values()):
+                    self.end_game()
+                else:
+                    # Notify this client of completion
+                    self.send_message_to_client('Quiz completed! Waiting for other players to finish...',
+                                                self.client_sockets[client_thread])
+            else:
+                # Send next question to this client
+                self.send_question_to_client(client_thread)
 
     def broadcast_player_list(self) -> None:
         """

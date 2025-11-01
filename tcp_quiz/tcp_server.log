@@ -42,3 +42,350 @@
 2025-10-31 22:46:08,633 - INFO - Received from ('192.168.1.44', 51724): ping:test
 2025-10-31 22:46:11,311 - INFO - Received from ('192.168.1.44', 51724): join:syrine
 2025-10-31 22:46:11,311 - INFO - Client ('192.168.1.44', 51724) joined as 'syrine'
+2025-11-01 13:37:27,426 - INFO - Loaded 10 questions from questions.txt
+2025-11-01 13:37:27,426 - INFO - TCP Quiz Server initialized on 0.0.0.0:8888
+2025-11-01 13:37:27,426 - INFO - TCP Quiz Server started on 0.0.0.0:8888
+2025-11-01 13:38:02,394 - INFO - Stopping TCP Quiz Server...
+2025-11-01 13:38:02,396 - INFO - Stopping TCP Quiz Server...
+2025-11-01 13:38:48,134 - INFO - Loaded 10 questions from questions.txt
+2025-11-01 13:38:48,134 - INFO - TCP Quiz Server initialized on 0.0.0.0:8888
+2025-11-01 13:38:48,134 - INFO - TCP Quiz Server started on 0.0.0.0:8888
+2025-11-01 13:40:36,798 - INFO - Stopping TCP Quiz Server...
+2025-11-01 13:40:36,801 - INFO - Stopping TCP Quiz Server...
+2025-11-01 13:41:14,242 - INFO - Loaded 10 questions from questions.txt
+2025-11-01 13:41:14,243 - INFO - TCP Quiz Server initialized on 0.0.0.0:8888
+2025-11-01 13:41:14,243 - INFO - TCP Quiz Server started on 0.0.0.0:8888
+2025-11-01 13:41:35,028 - INFO - New client connected from ('192.168.100.217', 55358)
+2025-11-01 13:41:35,030 - INFO - Received from ('192.168.100.217', 55358): ping:test
+2025-11-01 13:41:39,840 - INFO - Received from ('192.168.100.217', 55358): join:syrine
+2025-11-01 13:41:39,841 - INFO - Client ('192.168.100.217', 55358) joined as 'syrine'
+2025-11-01 13:48:25,280 - INFO - Stopping TCP Quiz Server...
+2025-11-01 13:48:25,935 - INFO - Stopping TCP Quiz Server...
+2025-11-01 13:51:42,732 - INFO - Loaded 10 questions from questions.txt
+2025-11-01 13:51:42,732 - INFO - TCP Quiz Server initialized on 0.0.0.0:8888
+2025-11-01 13:51:42,732 - INFO - TCP Quiz Server started on 0.0.0.0:8888
+2025-11-01 13:52:26,552 - INFO - New client connected from ('192.168.100.217', 55755)
+2025-11-01 13:52:26,558 - INFO - Received from ('192.168.100.217', 55755): ping:test
+2025-11-01 13:52:28,961 - INFO - Received from ('192.168.100.217', 55755): join:sysy
+2025-11-01 13:52:28,961 - INFO - Client ('192.168.100.217', 55755) joined as 'sysy'
+2025-11-01 13:52:28,962 - INFO - Starting new quiz game
+2025-11-01 13:52:30,969 - INFO - Broadcasting question 1
+2025-11-01 13:53:03,988 - INFO - Broadcasting question 2
+2025-11-01 13:53:10,989 - INFO - Received from ('192.168.100.217', 55755): answer:a
+2025-11-01 13:53:10,990 - INFO - Client ('192.168.100.217', 55755) (sysy) answered incorrectly: a
+2025-11-01 13:53:36,997 - INFO - Broadcasting question 3
+2025-11-01 13:53:45,153 - INFO - Received from ('192.168.100.217', 55755): answer:b
+2025-11-01 13:53:45,155 - INFO - Client ('192.168.100.217', 55755) (sysy) answered incorrectly: b
+2025-11-01 13:54:10,008 - INFO - Broadcasting question 4
+2025-11-01 13:54:22,205 - INFO - Received from ('192.168.100.217', 55755): answer:d
+2025-11-01 13:54:22,206 - INFO - Client ('192.168.100.217', 55755) (sysy) answered incorrectly: d
+2025-11-01 13:54:43,018 - INFO - Broadcasting question 5
+2025-11-01 13:54:50,963 - INFO - Received from ('192.168.100.217', 55755): answer:a
+2025-11-01 13:54:50,963 - INFO - Client ('192.168.100.217', 55755) (sysy) answered incorrectly: a
+2025-11-01 13:55:16,029 - INFO - Broadcasting question 6
+2025-11-01 13:55:24,592 - INFO - Received from ('192.168.100.217', 55755): answer:a
+2025-11-01 13:55:24,592 - INFO - Client ('192.168.100.217', 55755) (sysy) answered incorrectly: a
+2025-11-01 13:55:49,036 - INFO - Broadcasting question 7
+2025-11-01 13:56:22,044 - INFO - Broadcasting question 8
+2025-11-01 13:56:32,840 - INFO - Client ('192.168.100.217', 55755) (sysy) disconnected
+2025-11-01 13:56:32,841 - INFO - Client ('192.168.100.217', 55755) (sysy) disconnected due to timeout
+2025-11-01 13:56:33,651 - ERROR - Error handling message from ('192.168.100.217', 55755): [Errno 9] Bad file descriptor
+2025-11-01 13:56:55,053 - INFO - Broadcasting question 9
+2025-11-01 13:57:28,064 - INFO - Broadcasting question 10
+2025-11-01 13:57:49,375 - INFO - Stopping TCP Quiz Server...
+2025-11-01 13:57:49,376 - INFO - Stopping TCP Quiz Server...
+2025-11-01 14:10:33,888 - INFO - Loaded 10 questions from questions.txt
+2025-11-01 14:10:33,888 - INFO - TCP Quiz Server initialized on 0.0.0.0:8888
+2025-11-01 14:10:33,888 - INFO - TCP Quiz Server started on 0.0.0.0:8888
+2025-11-01 14:10:43,517 - INFO - New client connected from ('192.168.100.217', 56228)
+2025-11-01 14:10:43,518 - INFO - Received from ('192.168.100.217', 56228): ping:test
+2025-11-01 14:10:45,797 - INFO - Received from ('192.168.100.217', 56228): join:syrine
+2025-11-01 14:10:45,798 - INFO - Client ('192.168.100.217', 56228) joined as 'syrine'
+2025-11-01 14:10:45,798 - INFO - Starting new quiz game
+2025-11-01 14:10:47,804 - INFO - Broadcasting question 1
+2025-11-01 14:10:58,892 - INFO - Received from ('192.168.100.217', 56228): answer:b
+2025-11-01 14:10:58,892 - INFO - Client ('192.168.100.217', 56228) (syrine) answered correctly: b
+2025-11-01 14:11:01,896 - INFO - Broadcasting question 2
+2025-11-01 14:11:12,123 - INFO - Received from ('192.168.100.217', 56228): answer:b
+2025-11-01 14:11:12,124 - INFO - Client ('192.168.100.217', 56228) (syrine) answered correctly: b
+2025-11-01 14:11:15,130 - INFO - Broadcasting question 3
+2025-11-01 14:11:19,930 - INFO - Received from ('192.168.100.217', 56228): answer:a
+2025-11-01 14:11:19,931 - INFO - Client ('192.168.100.217', 56228) (syrine) answered correctly: a
+2025-11-01 14:11:22,931 - INFO - Broadcasting question 4
+2025-11-01 14:11:27,147 - INFO - Received from ('192.168.100.217', 56228): answer:c
+2025-11-01 14:11:27,147 - INFO - Client ('192.168.100.217', 56228) (syrine) answered correctly: c
+2025-11-01 14:11:30,151 - INFO - Broadcasting question 5
+2025-11-01 14:11:37,366 - INFO - Received from ('192.168.100.217', 56228): answer:d
+2025-11-01 14:11:37,366 - INFO - Client ('192.168.100.217', 56228) (syrine) answered correctly: d
+2025-11-01 14:11:40,370 - INFO - Broadcasting question 6
+2025-11-01 14:11:44,783 - INFO - Received from ('192.168.100.217', 56228): answer:a
+2025-11-01 14:11:44,784 - INFO - Client ('192.168.100.217', 56228) (syrine) answered incorrectly: a
+2025-11-01 14:11:47,784 - INFO - Broadcasting question 7
+2025-11-01 14:11:51,481 - INFO - Received from ('192.168.100.217', 56228): answer:a
+2025-11-01 14:11:51,483 - INFO - Client ('192.168.100.217', 56228) (syrine) answered correctly: a
+2025-11-01 14:11:54,485 - INFO - Broadcasting question 8
+2025-11-01 14:11:59,568 - INFO - Received from ('192.168.100.217', 56228): answer:a
+2025-11-01 14:11:59,569 - INFO - Client ('192.168.100.217', 56228) (syrine) answered correctly: a
+2025-11-01 14:12:02,574 - INFO - Broadcasting question 9
+2025-11-01 14:12:04,085 - INFO - Received from ('192.168.100.217', 56228): answer:c
+2025-11-01 14:12:04,086 - INFO - Client ('192.168.100.217', 56228) (syrine) answered correctly: c
+2025-11-01 14:12:07,090 - INFO - Broadcasting question 10
+2025-11-01 14:12:08,269 - INFO - Received from ('192.168.100.217', 56228): answer:b
+2025-11-01 14:12:08,269 - INFO - Client ('192.168.100.217', 56228) (syrine) answered correctly: b
+2025-11-01 14:12:11,275 - INFO - Quiz game ended
+2025-11-01 14:12:16,277 - INFO - Starting new quiz game
+2025-11-01 14:12:18,280 - INFO - Broadcasting question 1
+2025-11-01 14:12:36,290 - INFO - Broadcasting question 2
+2025-11-01 14:12:36,668 - INFO - Client ('192.168.100.217', 56228) (syrine) disconnected
+2025-11-01 14:12:54,295 - INFO - Broadcasting question 3
+2025-11-01 14:13:12,304 - INFO - Broadcasting question 4
+2025-11-01 14:13:30,311 - INFO - Broadcasting question 5
+2025-11-01 14:13:48,316 - INFO - Broadcasting question 6
+2025-11-01 14:14:06,327 - INFO - Broadcasting question 7
+2025-11-01 14:14:24,333 - INFO - Broadcasting question 8
+2025-11-01 14:14:42,345 - INFO - Broadcasting question 9
+2025-11-01 14:15:00,352 - INFO - Broadcasting question 10
+2025-11-01 14:15:18,359 - INFO - Quiz game ended
+2025-11-01 14:16:11,625 - INFO - Stopping TCP Quiz Server...
+2025-11-01 14:16:11,626 - INFO - Stopping TCP Quiz Server...
+2025-11-01 14:18:00,696 - INFO - Loaded 10 questions from questions.txt
+2025-11-01 14:18:00,696 - INFO - TCP Quiz Server initialized on 0.0.0.0:8888
+2025-11-01 14:18:00,696 - INFO - TCP Quiz Server started on 0.0.0.0:8888
+2025-11-01 14:20:32,556 - INFO - New client connected from ('192.168.100.138', 56088)
+2025-11-01 14:20:32,573 - INFO - Received from ('192.168.100.138', 56088): ping:test
+2025-11-01 14:20:37,842 - INFO - New client connected from ('192.168.100.136', 56970)
+2025-11-01 14:20:37,843 - INFO - Received from ('192.168.100.136', 56970): ping:test
+2025-11-01 14:20:41,719 - INFO - Received from ('192.168.100.136', 56970): join:mahdiiii
+2025-11-01 14:20:41,720 - INFO - Client ('192.168.100.136', 56970) joined as 'mahdiiii'
+2025-11-01 14:20:41,721 - INFO - Starting new quiz game
+2025-11-01 14:20:43,147 - INFO - Received from ('192.168.100.138', 56088): join:ahawa
+2025-11-01 14:20:43,147 - INFO - Client ('192.168.100.138', 56088) joined as 'ahawa'
+2025-11-01 14:20:43,722 - INFO - Broadcasting question 1
+2025-11-01 14:20:49,512 - INFO - Received from ('192.168.100.136', 56970): answer:a
+2025-11-01 14:20:49,513 - INFO - Client ('192.168.100.136', 56970) (mahdiiii) answered incorrectly: a
+2025-11-01 14:20:52,519 - INFO - Broadcasting question 2
+2025-11-01 14:20:54,891 - INFO - Received from ('192.168.100.136', 56970): answer:b
+2025-11-01 14:20:54,892 - INFO - Client ('192.168.100.136', 56970) (mahdiiii) answered correctly: b
+2025-11-01 14:20:57,893 - INFO - Broadcasting question 3
+2025-11-01 14:20:59,534 - INFO - Received from ('192.168.100.136', 56970): answer:c
+2025-11-01 14:20:59,534 - INFO - Client ('192.168.100.136', 56970) (mahdiiii) answered incorrectly: c
+2025-11-01 14:21:02,537 - INFO - Broadcasting question 4
+2025-11-01 14:21:06,354 - INFO - Received from ('192.168.100.136', 56970): answer:a
+2025-11-01 14:21:06,356 - INFO - Client ('192.168.100.136', 56970) (mahdiiii) answered incorrectly: a
+2025-11-01 14:21:09,362 - INFO - Broadcasting question 5
+2025-11-01 14:21:18,219 - INFO - Received from ('192.168.100.138', 56088): answer:a
+2025-11-01 14:21:18,220 - INFO - Client ('192.168.100.138', 56088) (ahawa) answered incorrectly: a
+2025-11-01 14:21:21,225 - INFO - Broadcasting question 6
+2025-11-01 14:21:22,166 - INFO - Received from ('192.168.100.136', 56970): answer:a
+2025-11-01 14:21:22,166 - INFO - Client ('192.168.100.136', 56970) (mahdiiii) answered incorrectly: a
+2025-11-01 14:21:25,172 - INFO - Broadcasting question 7
+2025-11-01 14:21:26,058 - INFO - Received from ('192.168.100.136', 56970): answer:b
+2025-11-01 14:21:26,058 - INFO - Client ('192.168.100.136', 56970) (mahdiiii) answered incorrectly: b
+2025-11-01 14:21:29,064 - INFO - Broadcasting question 8
+2025-11-01 14:21:32,406 - INFO - Received from ('192.168.100.138', 56088): answer:a
+2025-11-01 14:21:32,407 - INFO - Client ('192.168.100.138', 56088) (ahawa) answered correctly: a
+2025-11-01 14:21:35,412 - INFO - Broadcasting question 9
+2025-11-01 14:21:40,086 - INFO - Received from ('192.168.100.138', 56088): answer:d
+2025-11-01 14:21:40,087 - INFO - Client ('192.168.100.138', 56088) (ahawa) answered incorrectly: d
+2025-11-01 14:21:43,093 - INFO - Broadcasting question 10
+2025-11-01 14:21:44,183 - INFO - Received from ('192.168.100.138', 56088): answer:d
+2025-11-01 14:21:44,183 - INFO - Client ('192.168.100.138', 56088) (ahawa) answered incorrectly: d
+2025-11-01 14:21:46,333 - INFO - Received from ('192.168.100.136', 56970): answer:c
+2025-11-01 14:21:47,187 - INFO - Quiz game ended
+2025-11-01 14:21:52,190 - INFO - Starting new quiz game
+2025-11-01 14:21:54,193 - INFO - Broadcasting question 1
+2025-11-01 14:22:00,981 - INFO - Stopping TCP Quiz Server...
+2025-11-01 14:22:00,982 - INFO - Stopping TCP Quiz Server...
+2025-11-01 14:30:23,353 - INFO - Loaded 10 questions from questions.txt
+2025-11-01 14:30:23,353 - INFO - TCP Quiz Server initialized on 0.0.0.0:8888
+2025-11-01 14:30:23,353 - INFO - TCP Quiz Server started on 0.0.0.0:8888
+2025-11-01 14:30:42,441 - INFO - New client connected from ('192.168.100.136', 57015)
+2025-11-01 14:30:42,445 - INFO - Received from ('192.168.100.136', 57015): ping:test
+2025-11-01 14:30:52,435 - INFO - Received from ('192.168.100.136', 57015): join:whiskey
+2025-11-01 14:30:52,436 - INFO - Client ('192.168.100.136', 57015) joined as 'whiskey'
+2025-11-01 14:30:52,437 - INFO - Starting new quiz game
+2025-11-01 14:30:54,440 - INFO - Broadcasting question 1
+2025-11-01 14:31:00,326 - INFO - New client connected from ('192.168.100.138', 49199)
+2025-11-01 14:31:00,347 - INFO - Received from ('192.168.100.138', 49199): ping:test
+2025-11-01 14:31:06,083 - INFO - Received from ('192.168.100.138', 49199): join:hiiiiii
+2025-11-01 14:31:06,084 - INFO - Client ('192.168.100.138', 49199) joined as 'hiiiiii'
+2025-11-01 14:31:12,445 - INFO - Broadcasting question 2
+2025-11-01 14:31:15,576 - INFO - Received from ('192.168.100.136', 57015): answer:a
+2025-11-01 14:31:15,577 - INFO - Client ('192.168.100.136', 57015) (whiskey) answered incorrectly: a
+2025-11-01 14:31:30,448 - INFO - Broadcasting question 3
+2025-11-01 14:31:39,234 - INFO - Received from ('192.168.100.138', 49199): answer:a
+2025-11-01 14:31:39,236 - INFO - Client ('192.168.100.138', 49199) (hiiiiii) answered correctly: a
+2025-11-01 14:31:48,449 - INFO - Broadcasting question 4
+2025-11-01 14:31:56,734 - INFO - Received from ('192.168.100.138', 49199): answer:a
+2025-11-01 14:31:56,735 - INFO - Client ('192.168.100.138', 49199) (hiiiiii) answered incorrectly: a
+2025-11-01 14:31:59,740 - INFO - Received from ('192.168.100.136', 57015): answer:a
+2025-11-01 14:31:59,741 - INFO - Client ('192.168.100.136', 57015) (whiskey) answered incorrectly: a
+2025-11-01 14:32:02,744 - INFO - Broadcasting question 5
+2025-11-01 14:32:11,778 - INFO - Received from ('192.168.100.136', 57015): answer:a
+2025-11-01 14:32:11,779 - INFO - Client ('192.168.100.136', 57015) (whiskey) answered incorrectly: a
+2025-11-01 14:32:17,122 - INFO - Received from ('192.168.100.138', 49199): answer:d
+2025-11-01 14:32:17,123 - INFO - Client ('192.168.100.138', 49199) (hiiiiii) answered correctly: d
+2025-11-01 14:32:20,124 - INFO - Broadcasting question 6
+2025-11-01 14:32:24,494 - INFO - Received from ('192.168.100.136', 57015): answer:b
+2025-11-01 14:32:24,495 - INFO - Client ('192.168.100.136', 57015) (whiskey) answered correctly: b
+2025-11-01 14:32:38,135 - INFO - Broadcasting question 7
+2025-11-01 14:32:44,035 - INFO - Received from ('192.168.100.136', 57015): answer:a
+2025-11-01 14:32:44,036 - INFO - Client ('192.168.100.136', 57015) (whiskey) answered correctly: a
+2025-11-01 14:32:56,142 - INFO - Broadcasting question 8
+2025-11-01 14:32:59,543 - INFO - Received from ('192.168.100.138', 49199): answer:a
+2025-11-01 14:32:59,544 - INFO - Client ('192.168.100.138', 49199) (hiiiiii) answered correctly: a
+2025-11-01 14:33:14,152 - INFO - Broadcasting question 9
+2025-11-01 14:33:19,484 - INFO - Received from ('192.168.100.136', 57015): answer:b
+2025-11-01 14:33:19,484 - INFO - Client ('192.168.100.136', 57015) (whiskey) answered incorrectly: b
+2025-11-01 14:33:32,158 - INFO - Broadcasting question 10
+2025-11-01 14:33:41,530 - INFO - Received from ('192.168.100.138', 49199): answer:a
+2025-11-01 14:33:41,530 - INFO - Client ('192.168.100.138', 49199) (hiiiiii) answered incorrectly: a
+2025-11-01 14:33:42,428 - INFO - Received from ('192.168.100.136', 57015): answer:b
+2025-11-01 14:33:42,429 - INFO - Client ('192.168.100.136', 57015) (whiskey) answered correctly: b
+2025-11-01 14:33:45,434 - INFO - Quiz game ended
+2025-11-01 14:34:43,421 - INFO - Client ('192.168.100.136', 57015) (whiskey) disconnected
+2025-11-01 14:34:43,424 - INFO - Client ('192.168.100.136', 57015) (whiskey) disconnected due to timeout
+2025-11-01 14:34:43,424 - INFO - Client ('192.168.100.138', 49199) (hiiiiii) disconnected
+2025-11-01 14:34:43,424 - INFO - Client ('192.168.100.138', 49199) (hiiiiii) disconnected due to timeout
+2025-11-01 14:34:43,486 - ERROR - Error handling message from ('192.168.100.136', 57015): [Errno 9] Bad file descriptor
+2025-11-01 14:34:43,591 - ERROR - Error handling message from ('192.168.100.138', 49199): [Errno 9] Bad file descriptor
+2025-11-01 14:48:06,369 - INFO - Stopping TCP Quiz Server...
+2025-11-01 14:48:06,378 - INFO - Stopping TCP Quiz Server...
+2025-11-01 14:48:56,328 - INFO - Loaded 10 questions from questions.txt
+2025-11-01 14:48:56,328 - INFO - TCP Quiz Server initialized on 0.0.0.0:8888
+2025-11-01 14:48:56,328 - INFO - TCP Quiz Server started on 0.0.0.0:8888
+2025-11-01 14:49:10,964 - INFO - New client connected from ('192.168.100.138', 58625)
+2025-11-01 14:49:10,973 - INFO - Received from ('192.168.100.138', 58625): ping:test
+2025-11-01 14:49:11,061 - INFO - New client connected from ('192.168.100.136', 57062)
+2025-11-01 14:49:11,062 - INFO - Received from ('192.168.100.136', 57062): ping:test
+2025-11-01 14:49:14,078 - INFO - Received from ('192.168.100.136', 57062): join:maa
+2025-11-01 14:49:14,079 - INFO - Client ('192.168.100.136', 57062) joined as 'maa'
+2025-11-01 14:49:17,213 - INFO - Received from ('192.168.100.138', 58625): join:oppppa
+2025-11-01 14:49:17,214 - INFO - Client ('192.168.100.138', 58625) joined as 'oppppa'
+2025-11-01 14:49:29,312 - INFO - Received from ('192.168.100.136', 57062): answer:a
+2025-11-01 14:49:29,313 - INFO - Client ('192.168.100.136', 57062) (maa) answered incorrectly: a
+2025-11-01 14:49:31,169 - INFO - Received from ('192.168.100.136', 57062): answer:a
+2025-11-01 14:49:31,170 - INFO - Client ('192.168.100.136', 57062) (maa) answered correctly: a
+2025-11-01 14:49:38,442 - INFO - Received from ('192.168.100.136', 57062): answer:b
+2025-11-01 14:49:38,443 - INFO - Client ('192.168.100.136', 57062) (maa) answered incorrectly: b
+2025-11-01 14:49:39,948 - INFO - Received from ('192.168.100.136', 57062): answer:a
+2025-11-01 14:49:39,949 - INFO - Client ('192.168.100.136', 57062) (maa) answered incorrectly: a
+2025-11-01 14:49:40,784 - INFO - Received from ('192.168.100.136', 57062): answer:b
+2025-11-01 14:49:40,784 - INFO - Client ('192.168.100.136', 57062) (maa) answered correctly: b
+2025-11-01 14:49:41,296 - INFO - Received from ('192.168.100.136', 57062): answer:a
+2025-11-01 14:49:41,296 - INFO - Client ('192.168.100.136', 57062) (maa) answered correctly: a
+2025-11-01 14:49:43,097 - INFO - Received from ('192.168.100.136', 57062): answer:b
+2025-11-01 14:49:43,098 - INFO - Client ('192.168.100.136', 57062) (maa) answered incorrectly: b
+2025-11-01 14:49:43,186 - INFO - Received from ('192.168.100.138', 58625): answer:b
+2025-11-01 14:49:43,187 - INFO - Client ('192.168.100.138', 58625) (oppppa) answered correctly: b
+2025-11-01 14:49:44,071 - INFO - Received from ('192.168.100.136', 57062): answer:c
+2025-11-01 14:49:44,072 - INFO - Client ('192.168.100.136', 57062) (maa) answered correctly: c
+2025-11-01 14:49:44,891 - INFO - Received from ('192.168.100.136', 57062): answer:a
+2025-11-01 14:49:44,892 - INFO - Client ('192.168.100.136', 57062) (maa) answered incorrectly: a
+2025-11-01 14:49:49,808 - INFO - Received from ('192.168.100.138', 58625): answer:a
+2025-11-01 14:49:49,809 - INFO - Client ('192.168.100.138', 58625) (oppppa) answered correctly: a
+2025-11-01 14:49:55,027 - INFO - Received from ('192.168.100.138', 58625): answer:c
+2025-11-01 14:49:55,028 - INFO - Client ('192.168.100.138', 58625) (oppppa) answered correctly: c
+2025-11-01 14:50:02,299 - INFO - Received from ('192.168.100.138', 58625): answer:d
+2025-11-01 14:50:02,301 - INFO - Client ('192.168.100.138', 58625) (oppppa) answered correctly: d
+2025-11-01 14:50:08,259 - INFO - Received from ('192.168.100.138', 58625): answer:b
+2025-11-01 14:50:08,260 - INFO - Client ('192.168.100.138', 58625) (oppppa) answered correctly: b
+2025-11-01 14:50:16,387 - INFO - Received from ('192.168.100.138', 58625): answer:a
+2025-11-01 14:50:16,389 - INFO - Client ('192.168.100.138', 58625) (oppppa) answered correctly: a
+2025-11-01 14:50:24,725 - INFO - Received from ('192.168.100.138', 58625): answer:c
+2025-11-01 14:50:24,725 - INFO - Client ('192.168.100.138', 58625) (oppppa) answered incorrectly: c
+2025-11-01 14:50:28,769 - INFO - Received from ('192.168.100.138', 58625): answer:a
+2025-11-01 14:50:28,770 - INFO - Client ('192.168.100.138', 58625) (oppppa) answered incorrectly: a
+2025-11-01 14:50:32,275 - INFO - Received from ('192.168.100.138', 58625): answer:a
+2025-11-01 14:50:32,275 - INFO - Client ('192.168.100.138', 58625) (oppppa) answered incorrectly: a
+2025-11-01 14:50:32,276 - INFO - Quiz game ended
+2025-11-01 14:50:46,366 - INFO - Client ('192.168.100.136', 57062) (maa) disconnected
+2025-11-01 14:50:46,369 - INFO - Client ('192.168.100.136', 57062) (maa) disconnected due to timeout
+2025-11-01 14:50:46,948 - ERROR - Error handling message from ('192.168.100.136', 57062): [Errno 9] Bad file descriptor
+2025-11-01 14:51:04,754 - INFO - New client connected from ('192.168.100.217', 57037)
+2025-11-01 14:51:04,755 - INFO - Received from ('192.168.100.217', 57037): ping:test
+2025-11-01 14:51:07,224 - INFO - Received from ('192.168.100.217', 57037): join:syrine
+2025-11-01 14:51:07,225 - INFO - Client ('192.168.100.217', 57037) joined as 'syrine'
+2025-11-01 14:51:36,387 - INFO - Client ('192.168.100.138', 58625) (oppppa) disconnected
+2025-11-01 14:51:36,389 - INFO - Client ('192.168.100.138', 58625) (oppppa) disconnected due to timeout
+2025-11-01 14:51:37,337 - ERROR - Error handling message from ('192.168.100.138', 58625): [Errno 9] Bad file descriptor
+2025-11-01 14:51:41,024 - INFO - Client ('192.168.100.217', 57037) (syrine) disconnected
+2025-11-01 15:00:22,879 - INFO - Stopping TCP Quiz Server...
+2025-11-01 15:00:22,881 - INFO - Stopping TCP Quiz Server...
+2025-11-01 15:00:26,432 - INFO - Loaded 10 questions from questions.txt
+2025-11-01 15:00:26,433 - INFO - TCP Quiz Server initialized on 0.0.0.0:8888
+2025-11-01 15:00:26,433 - INFO - TCP Quiz Server started on 0.0.0.0:8888
+2025-11-01 15:01:01,018 - INFO - New client connected from ('192.168.100.136', 57104)
+2025-11-01 15:01:01,021 - INFO - Received from ('192.168.100.136', 57104): ping:test
+2025-11-01 15:01:41,376 - INFO - Received from ('192.168.100.136', 57104): join:Mahdi Ksila
+2025-11-01 15:01:41,377 - INFO - Client ('192.168.100.136', 57104) joined as 'Mahdi Ksila'
+2025-11-01 15:01:43,717 - INFO - New client connected from ('192.168.100.138', 62719)
+2025-11-01 15:01:43,737 - INFO - Received from ('192.168.100.138', 62719): ping:test
+2025-11-01 15:01:45,452 - INFO - Received from ('192.168.100.136', 57104): answer:a
+2025-11-01 15:01:45,452 - INFO - Client ('192.168.100.136', 57104) (Mahdi Ksila) answered incorrectly: a
+2025-11-01 15:01:51,801 - INFO - Received from ('192.168.100.136', 57104): answer:c
+2025-11-01 15:01:51,801 - INFO - Client ('192.168.100.136', 57104) (Mahdi Ksila) answered incorrectly: c
+2025-11-01 15:01:52,415 - INFO - Received from ('192.168.100.138', 62719): join:AKREM
+2025-11-01 15:01:52,416 - INFO - Client ('192.168.100.138', 62719) joined as 'AKREM'
+2025-11-01 15:01:55,897 - INFO - Received from ('192.168.100.136', 57104): answer:a
+2025-11-01 15:01:55,897 - INFO - Client ('192.168.100.136', 57104) (Mahdi Ksila) answered correctly: a
+2025-11-01 15:02:01,258 - INFO - Received from ('192.168.100.136', 57104): answer:b
+2025-11-01 15:02:01,259 - INFO - Client ('192.168.100.136', 57104) (Mahdi Ksila) answered incorrectly: b
+2025-11-01 15:02:07,886 - INFO - Received from ('192.168.100.136', 57104): answer:a
+2025-11-01 15:02:07,887 - INFO - Client ('192.168.100.136', 57104) (Mahdi Ksila) answered incorrectly: a
+2025-11-01 15:02:09,107 - INFO - Received from ('192.168.100.138', 62719): answer:c
+2025-11-01 15:02:09,107 - INFO - Client ('192.168.100.138', 62719) (AKREM) answered incorrectly: c
+2025-11-01 15:02:09,738 - INFO - New client connected from ('192.168.100.217', 57369)
+2025-11-01 15:02:09,739 - INFO - Received from ('192.168.100.217', 57369): ping:test
+2025-11-01 15:02:10,894 - INFO - Received from ('192.168.100.217', 57369): join:sysy
+2025-11-01 15:02:10,895 - INFO - Client ('192.168.100.217', 57369) joined as 'sysy'
+2025-11-01 15:02:12,261 - INFO - Received from ('192.168.100.217', 57369): answer:a
+2025-11-01 15:02:12,261 - INFO - Client ('192.168.100.217', 57369) (sysy) answered incorrectly: a
+2025-11-01 15:02:16,071 - INFO - Received from ('192.168.100.136', 57104): answer:a
+2025-11-01 15:02:16,072 - INFO - Client ('192.168.100.136', 57104) (Mahdi Ksila) answered incorrectly: a
+2025-11-01 15:02:18,465 - INFO - Received from ('192.168.100.217', 57369): answer:b
+2025-11-01 15:02:18,465 - INFO - Client ('192.168.100.217', 57369) (sysy) answered correctly: b
+2025-11-01 15:02:20,681 - INFO - Received from ('192.168.100.136', 57104): answer:c
+2025-11-01 15:02:20,683 - INFO - Client ('192.168.100.136', 57104) (Mahdi Ksila) answered incorrectly: c
+2025-11-01 15:02:22,133 - INFO - Received from ('192.168.100.217', 57369): answer:c
+2025-11-01 15:02:22,134 - INFO - Client ('192.168.100.217', 57369) (sysy) answered incorrectly: c
+2025-11-01 15:02:23,033 - INFO - Received from ('192.168.100.136', 57104): answer:b
+2025-11-01 15:02:23,034 - INFO - Client ('192.168.100.136', 57104) (Mahdi Ksila) answered incorrectly: b
+2025-11-01 15:02:26,003 - INFO - Received from ('192.168.100.136', 57104): answer:a
+2025-11-01 15:02:26,004 - INFO - Client ('192.168.100.136', 57104) (Mahdi Ksila) answered incorrectly: a
+2025-11-01 15:02:27,712 - INFO - Received from ('192.168.100.136', 57104): answer:c
+2025-11-01 15:02:27,713 - INFO - Client ('192.168.100.136', 57104) (Mahdi Ksila) answered incorrectly: c
+2025-11-01 15:02:36,142 - INFO - Received from ('192.168.100.138', 62719): answer:a
+2025-11-01 15:02:36,143 - INFO - Client ('192.168.100.138', 62719) (AKREM) answered incorrectly: a
+2025-11-01 15:02:36,615 - INFO - Received from ('192.168.100.217', 57369): answer:a
+2025-11-01 15:02:36,615 - INFO - Client ('192.168.100.217', 57369) (sysy) answered incorrectly: a
+2025-11-01 15:02:38,731 - INFO - Received from ('192.168.100.138', 62719): answer:a
+2025-11-01 15:02:38,731 - INFO - Client ('192.168.100.138', 62719) (AKREM) answered incorrectly: a
+2025-11-01 15:02:41,969 - INFO - Received from ('192.168.100.217', 57369): answer:c
+2025-11-01 15:02:41,969 - INFO - Client ('192.168.100.217', 57369) (sysy) answered incorrectly: c
+2025-11-01 15:02:43,369 - INFO - Received from ('192.168.100.217', 57369): answer:a
+2025-11-01 15:02:43,370 - INFO - Client ('192.168.100.217', 57369) (sysy) answered incorrectly: a
+2025-11-01 15:02:44,298 - INFO - Received from ('192.168.100.217', 57369): answer:b
+2025-11-01 15:02:44,298 - INFO - Client ('192.168.100.217', 57369) (sysy) answered incorrectly: b
+2025-11-01 15:02:45,892 - INFO - Received from ('192.168.100.217', 57369): answer:a
+2025-11-01 15:02:45,892 - INFO - Client ('192.168.100.217', 57369) (sysy) answered correctly: a
+2025-11-01 15:02:47,922 - INFO - Received from ('192.168.100.217', 57369): answer:c
+2025-11-01 15:02:47,923 - INFO - Client ('192.168.100.217', 57369) (sysy) answered correctly: c
+2025-11-01 15:02:49,753 - INFO - Received from ('192.168.100.217', 57369): answer:d
+2025-11-01 15:02:49,754 - INFO - Client ('192.168.100.217', 57369) (sysy) answered incorrectly: d
+2025-11-01 15:03:32,284 - INFO - Received from ('192.168.100.138', 62719): answer:b
+2025-11-01 15:03:32,284 - INFO - Client ('192.168.100.138', 62719) (AKREM) answered incorrectly: b
+2025-11-01 15:03:35,637 - INFO - Received from ('192.168.100.138', 62719): answer:a
+2025-11-01 15:03:35,637 - INFO - Client ('192.168.100.138', 62719) (AKREM) answered incorrectly: a
+2025-11-01 15:03:35,638 - INFO - Quiz game ended
+2025-11-01 15:03:36,505 - INFO - Client ('192.168.100.136', 57104) (Mahdi Ksila) disconnected
+2025-11-01 15:03:36,506 - INFO - Client ('192.168.100.136', 57104) (Mahdi Ksila) disconnected due to timeout
+2025-11-01 15:03:36,777 - ERROR - Error handling message from ('192.168.100.136', 57104): [Errno 9] Bad file descriptor
+2025-11-01 15:03:56,515 - INFO - Client ('192.168.100.217', 57369) (sysy) disconnected
+2025-11-01 15:03:56,518 - INFO - Client ('192.168.100.217', 57369) (sysy) disconnected due to timeout
+2025-11-01 15:03:56,813 - ERROR - Error handling message from ('192.168.100.217', 57369): [Errno 9] Bad file descriptor
+2025-11-01 15:04:36,531 - INFO - Client ('192.168.100.138', 62719) (AKREM) disconnected
+2025-11-01 15:04:36,532 - INFO - Client ('192.168.100.138', 62719) (AKREM) disconnected due to timeout
+2025-11-01 15:04:36,697 - ERROR - Error handling message from ('192.168.100.138', 62719): [Errno 9] Bad file descriptor
+2025-11-01 15:29:50,802 - INFO - Stopping TCP Quiz Server...
+2025-11-01 15:29:50,809 - INFO - Stopping TCP Quiz Server...
