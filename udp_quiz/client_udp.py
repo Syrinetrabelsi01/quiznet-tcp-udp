@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-UDP Quiz Client (enhanced version)
+UDP Quiz Client (updated version)
 
 This client connects to the UDP quiz server and participates in quiz games.  It
 is designed to work with the improved server implementation that sends each
@@ -19,6 +19,10 @@ Key features:
   ``question_duration`` (default 15 seconds).  The timer stops once a
   question is answered or a new question arrives.
 * Simple command loop supporting answer submission and quitting the game.
+
+This updated version also clears the current question locally when an answer
+is submitted.  This prevents the countdown timer from continuing after a
+player has responded, matching the behaviour of the TCP client.
 
 To run the client, execute this file and enter the server's host and port
 when prompted.  Once connected and registered, the game will start
@@ -242,7 +246,8 @@ class UDPQuizClient:
                 elif user_input in ['a', 'b', 'c', 'd']:
                     # Send answer
                     self._send(f'answer:{user_input}')
-                    # The timer will be stopped once a new question arrives or on correct/incorrect message
+                    # Clear current question locally to stop the countdown timer
+                    self.current_question = None
                 elif user_input:
                     print("❌ Invalid command. Type 'help' for available commands.")
         except KeyboardInterrupt:

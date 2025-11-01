@@ -22,3 +22,140 @@
 2025-11-01 15:36:49,087 - INFO - Client ('192.168.100.138', 63778) (lakriiiiim) answered correctly: b
 2025-11-01 15:36:53,680 - INFO - Broadcasting question 7
 2025-11-01 15:36:54,801 - INFO - Client ('192.168.100.136', 51990) (mahdi) answered correctly: a
+2025-11-01 15:36:59,274 - INFO - Client ('192.168.100.138', 63778) (lakriiiiim) answered correctly: a
+2025-11-01 15:37:01,276 - INFO - Broadcasting question 8
+2025-11-01 15:37:02,730 - INFO - Client ('192.168.100.136', 51990) (mahdi) answered correctly: a
+2025-11-01 15:37:07,247 - INFO - Client ('192.168.100.138', 63778) (lakriiiiim) answered correctly: a
+2025-11-01 15:37:09,254 - INFO - Broadcasting question 9
+2025-11-01 15:37:26,266 - INFO - Broadcasting question 10
+2025-11-01 15:37:28,444 - INFO - Client ('192.168.100.136', 51990) (mahdi) answered incorrectly: c
+2025-11-01 15:37:30,168 - INFO - Client ('192.168.100.138', 63778) (lakriiiiim) answered incorrectly: a
+2025-11-01 15:37:32,171 - INFO - Quiz game ended
+2025-11-01 15:48:11,004 - INFO - Server interrupted by keyboard; shutting down.
+2025-11-01 15:49:10,826 - INFO - Loaded 10 questions from questions.txt
+2025-11-01 15:49:10,827 - INFO - UDP Quiz Server initialised on 0.0.0.0:8888
+2025-11-01 15:50:21,583 - INFO - Server interrupted by keyboard; shutting down.
+2025-11-01 15:50:33,176 - INFO - Loaded 10 questions from questions.txt
+2025-11-01 15:50:33,176 - INFO - UDP Quiz Server initialised on 0.0.0.0:8888
+2025-11-01 15:51:55,820 - INFO - Client ('192.168.100.136', 52175) joined as 'mahdi'
+2025-11-01 15:51:55,825 - INFO - Starting new quiz game
+2025-11-01 15:51:57,829 - INFO - Broadcasting question 1
+2025-11-01 15:52:00,914 - INFO - Client ('192.168.100.136', 52175) (mahdi) answered incorrectly: a
+2025-11-01 15:52:02,920 - INFO - Broadcasting question 2
+2025-11-01 15:52:19,929 - INFO - Broadcasting question 3
+2025-11-01 15:52:36,879 - INFO - Broadcasting question 4
+2025-11-01 15:52:39,562 - INFO - Client ('192.168.100.136', 52175) (mahdi) answered incorrectly: b
+2025-11-01 15:52:41,566 - INFO - Broadcasting question 5
+2025-11-01 15:52:42,482 - INFO - Client ('192.168.100.136', 52175) (mahdi) answered incorrectly: c
+2025-11-01 15:52:44,490 - INFO - Broadcasting question 6
+2025-11-01 15:52:45,734 - INFO - Client ('192.168.100.136', 52175) (mahdi) answered incorrectly: d
+2025-11-01 15:52:47,740 - INFO - Broadcasting question 7
+2025-11-01 15:52:48,597 - INFO - Client ('192.168.100.136', 52175) (mahdi) answered correctly: a
+2025-11-01 15:52:50,604 - INFO - Broadcasting question 8
+2025-11-01 15:52:51,786 - INFO - Client ('192.168.100.136', 52175) (mahdi) answered correctly: a
+2025-11-01 15:52:53,790 - INFO - Broadcasting question 9
+2025-11-01 15:52:54,849 - INFO - Client ('192.168.100.136', 52175) (mahdi) answered incorrectly: b
+2025-11-01 15:52:56,852 - INFO - Broadcasting question 10
+2025-11-01 15:52:57,675 - INFO - Client ('192.168.100.136', 52175) (mahdi) answered incorrectly: a
+2025-11-01 15:52:59,677 - INFO - Quiz game ended
+2025-11-01 15:53:20,762 - INFO - Client ('192.168.100.138', 62748) joined as 'hiiiiiii'
+2025-11-01 15:53:20,764 - INFO - Starting new quiz game
+2025-11-01 15:53:22,766 - INFO - Broadcasting question 1
+2025-11-01 15:53:32,676 - INFO - Client ('192.168.100.138', 62748) (hiiiiiii) answered incorrectly: a
+2025-11-01 15:53:39,772 - INFO - Broadcasting question 2
+2025-11-01 15:53:56,782 - INFO - Broadcasting question 3
+2025-11-01 15:54:03,199 - INFO - Removed inactive client ('192.168.100.136', 52175) (mahdi) due to timeout
+2025-11-01 15:54:13,789 - INFO - Broadcasting question 4
+2025-11-01 15:54:30,795 - INFO - Broadcasting question 5
+2025-11-01 15:54:33,208 - INFO - Removed inactive client ('192.168.100.138', 62748) (hiiiiiii) due to timeout
+2025-11-01 15:54:47,804 - INFO - Broadcasting question 6
+2025-11-01 15:55:04,814 - INFO - Broadcasting question 7
+2025-11-01 15:55:21,820 - INFO - Broadcasting question 8
+2025-11-01 15:55:38,826 - INFO - Broadcasting question 9
+2025-11-01 15:55:55,836 - INFO - Broadcasting question 10
+2025-11-01 16:05:18,151 - INFO - Server interrupted by keyboard; shutting down.
+2025-11-01 16:05:21,228 - INFO - Loaded 10 questions from questions.txt
+2025-11-01 16:05:21,228 - INFO - UDP Quiz Server initialised on 0.0.0.0:8888
+2025-11-01 16:06:40,043 - INFO - Client ('192.168.100.136', 55903) joined as 'Mahdi Ksila'
+2025-11-01 16:06:44,598 - INFO - Client ('192.168.100.138', 61287) joined as 'sysyss'
+2025-11-01 16:06:48,704 - INFO - Client ('192.168.100.138', 61287) (sysyss) answered incorrectly: a
+2025-11-01 16:06:48,919 - INFO - Client ('192.168.100.136', 55903) (Mahdi Ksila) answered incorrectly: a
+2025-11-01 16:06:51,527 - INFO - Client ('192.168.100.138', 61287) (sysyss) answered correctly: b
+2025-11-01 16:06:53,329 - INFO - Client ('192.168.100.138', 61287) (sysyss) answered correctly: a
+2025-11-01 16:06:57,132 - INFO - Client ('192.168.100.138', 61287) (sysyss) answered correctly: c
+2025-11-01 16:07:11,030 - INFO - Client ('192.168.100.138', 61287) (sysyss) answered incorrectly: c
+2025-11-01 16:07:17,679 - INFO - Client ('192.168.100.136', 55903) (Mahdi Ksila) answered correctly: a
+2025-11-01 16:07:24,024 - INFO - Client ('192.168.100.136', 55903) (Mahdi Ksila) answered incorrectly: a
+2025-11-01 16:07:26,841 - INFO - Client ('192.168.100.138', 61287) (sysyss) answered correctly: a
+2025-11-01 16:07:28,051 - INFO - Client ('192.168.100.138', 61287) (sysyss) answered correctly: a
+2025-11-01 16:07:28,564 - INFO - Client ('192.168.100.138', 61287) (sysyss) answered incorrectly: a
+2025-11-01 16:07:29,016 - INFO - Client ('192.168.100.138', 61287) (sysyss) answered incorrectly: a
+2025-11-01 16:07:36,134 - INFO - Client ('192.168.100.136', 55903) (Mahdi Ksila) answered incorrectly: a
+2025-11-01 16:07:41,490 - INFO - Client ('192.168.100.136', 55903) (Mahdi Ksila) answered incorrectly: a
+2025-11-01 16:07:43,014 - INFO - Client ('192.168.100.136', 55903) (Mahdi Ksila) answered incorrectly: b
+2025-11-01 16:07:43,612 - INFO - Client ('192.168.100.136', 55903) (Mahdi Ksila) answered incorrectly: b
+2025-11-01 16:07:44,092 - INFO - Client ('192.168.100.136', 55903) (Mahdi Ksila) answered incorrectly: b
+2025-11-01 16:07:44,895 - INFO - Client ('192.168.100.136', 55903) (Mahdi Ksila) answered correctly: b
+2025-11-01 16:07:44,896 - INFO - Quiz game ended
+2025-11-01 16:08:31,288 - INFO - Removed inactive client ('192.168.100.138', 61287) (sysyss) due to timeout
+2025-11-01 16:08:51,301 - INFO - Removed inactive client ('192.168.100.136', 55903) (Mahdi Ksila) due to timeout
+2025-11-01 16:11:00,918 - INFO - Server interrupted by keyboard; shutting down.
+2025-11-01 16:11:02,900 - INFO - Loaded 10 questions from questions.txt
+2025-11-01 16:11:02,900 - INFO - UDP Quiz Server initialised on 0.0.0.0:8888
+2025-11-01 16:11:57,862 - INFO - Client ('192.168.100.136', 56649) joined as 'sysy'
+2025-11-01 16:11:59,255 - INFO - Client ('192.168.100.136', 56649) (sysy) answered incorrectly: a
+2025-11-01 16:12:15,368 - INFO - Client ('192.168.100.136', 56649) (sysy) answered incorrectly: b
+2025-11-01 16:12:16,190 - INFO - Client ('192.168.100.136', 56649) (sysy) answered incorrectly: b
+2025-11-01 16:12:27,886 - INFO - Client ('192.168.100.136', 55931) joined as 'madiiii'
+2025-11-01 16:12:31,376 - INFO - Client ('192.168.100.138', 64882) joined as 'sousiuuu'
+2025-11-01 16:12:32,162 - INFO - Client ('192.168.100.136', 55931) (madiiii) answered incorrectly: a
+2025-11-01 16:12:35,795 - INFO - Client ('192.168.100.138', 64882) (sousiuuu) answered incorrectly: a
+2025-11-01 16:12:39,734 - INFO - Client ('192.168.100.138', 64882) (sousiuuu) answered incorrectly: a
+2025-11-01 16:12:40,764 - INFO - Client ('192.168.100.136', 55931) (madiiii) answered correctly: b
+2025-11-01 16:12:42,812 - INFO - Client ('192.168.100.136', 55931) (madiiii) answered correctly: a
+2025-11-01 16:12:45,222 - INFO - Client ('192.168.100.138', 64882) (sousiuuu) answered correctly: a
+2025-11-01 16:12:50,082 - INFO - Client ('192.168.100.136', 55931) (madiiii) answered correctly: c
+2025-11-01 16:12:52,336 - INFO - Client ('192.168.100.138', 64882) (sousiuuu) answered incorrectly: a
+2025-11-01 16:12:54,588 - INFO - Client ('192.168.100.136', 55931) (madiiii) answered correctly: d
+2025-11-01 16:12:55,304 - INFO - Client ('192.168.100.138', 64882) (sousiuuu) answered incorrectly: a
+2025-11-01 16:12:56,875 - INFO - Client ('192.168.100.138', 64882) (sousiuuu) answered incorrectly: a
+2025-11-01 16:12:57,369 - INFO - Client ('192.168.100.138', 64882) (sousiuuu) answered correctly: a
+2025-11-01 16:12:57,865 - INFO - Client ('192.168.100.138', 64882) (sousiuuu) answered correctly: a
+2025-11-01 16:12:58,274 - INFO - Client ('192.168.100.138', 64882) (sousiuuu) answered incorrectly: a
+2025-11-01 16:12:58,308 - INFO - Client ('192.168.100.136', 55931) (madiiii) answered correctly: b
+2025-11-01 16:12:59,297 - INFO - Client ('192.168.100.138', 64882) (sousiuuu) answered incorrectly: a
+2025-11-01 16:13:01,501 - INFO - Client ('192.168.100.136', 55931) (madiiii) answered correctly: a
+2025-11-01 16:13:06,145 - INFO - Client ('192.168.100.136', 55931) (madiiii) answered correctly: a
+2025-11-01 16:13:10,347 - INFO - Client ('192.168.100.136', 55931) (madiiii) answered correctly: c
+2025-11-01 16:13:12,654 - INFO - Client ('192.168.100.136', 55931) (madiiii) answered incorrectly: c
+2025-11-01 16:13:22,951 - INFO - Removed inactive client ('192.168.100.136', 56649) (sysy) due to timeout
+2025-11-01 16:14:02,967 - INFO - Removed inactive client ('192.168.100.138', 64882) (sousiuuu) due to timeout
+2025-11-01 16:14:12,970 - INFO - Removed inactive client ('192.168.100.136', 55931) (madiiii) due to timeout
+2025-11-01 16:17:47,275 - INFO - Server interrupted by keyboard; shutting down.
+2025-11-01 16:19:29,085 - INFO - Loaded 10 questions from questions.txt
+2025-11-01 16:19:29,085 - INFO - UDP Quiz Server initialised on 0.0.0.0:8888
+2025-11-01 16:21:51,380 - INFO - Client ('192.168.100.138', 62956) joined as 'sisyyyy'
+2025-11-01 16:21:53,326 - INFO - Client ('192.168.100.136', 53165) joined as 'mahdi'
+2025-11-01 16:21:54,534 - INFO - Client ('192.168.100.136', 53165) (mahdi) answered incorrectly: a
+2025-11-01 16:21:55,884 - INFO - Client ('192.168.100.136', 53165) (mahdi) answered correctly: b
+2025-11-01 16:21:57,622 - INFO - Client ('192.168.100.136', 53165) (mahdi) answered incorrectly: c
+2025-11-01 16:21:58,702 - INFO - Client ('192.168.100.138', 62956) (sisyyyy) answered incorrectly: a
+2025-11-01 16:21:58,703 - INFO - Client ('192.168.100.136', 53165) (mahdi) answered incorrectly: a
+2025-11-01 16:21:59,469 - INFO - Client ('192.168.100.136', 53165) (mahdi) answered correctly: d
+2025-11-01 16:21:59,676 - INFO - Client ('192.168.100.138', 62956) (sisyyyy) answered incorrectly: a
+2025-11-01 16:22:00,493 - INFO - Client ('192.168.100.138', 62956) (sisyyyy) answered correctly: a
+2025-11-01 16:22:00,495 - INFO - Client ('192.168.100.136', 53165) (mahdi) answered incorrectly: c
+2025-11-01 16:22:01,005 - INFO - Client ('192.168.100.138', 62956) (sisyyyy) answered incorrectly: a
+2025-11-01 16:22:01,021 - INFO - Client ('192.168.100.136', 53165) (mahdi) answered correctly: a
+2025-11-01 16:22:01,687 - INFO - Client ('192.168.100.136', 53165) (mahdi) answered incorrectly: c
+2025-11-01 16:22:01,826 - INFO - Client ('192.168.100.138', 62956) (sisyyyy) answered incorrectly: a
+2025-11-01 16:22:02,336 - INFO - Client ('192.168.100.138', 62956) (sisyyyy) answered incorrectly: a
+2025-11-01 16:22:02,658 - INFO - Client ('192.168.100.138', 62956) (sisyyyy) answered correctly: a
+2025-11-01 16:22:03,053 - INFO - Client ('192.168.100.136', 53165) (mahdi) answered incorrectly: a
+2025-11-01 16:22:03,054 - INFO - Client ('192.168.100.138', 62956) (sisyyyy) answered correctly: a
+2025-11-01 16:22:03,417 - INFO - Client ('192.168.100.138', 62956) (sisyyyy) answered incorrectly: a
+2025-11-01 16:22:03,873 - INFO - Client ('192.168.100.136', 53165) (mahdi) answered incorrectly: c
+2025-11-01 16:22:03,874 - INFO - Client ('192.168.100.138', 62956) (sisyyyy) answered incorrectly: a
+2025-11-01 16:22:03,874 - INFO - Quiz game ended
+2025-11-01 16:23:09,178 - INFO - Removed inactive client ('192.168.100.138', 62956) (sisyyyy) due to timeout
+2025-11-01 16:23:09,180 - INFO - Removed inactive client ('192.168.100.136', 53165) (mahdi) due to timeout
